@@ -310,6 +310,8 @@ async function handleGenerateKey(e) {
   const orgName = document.getElementById('orgName').value.trim();
   const trn = document.getElementById('trnNumber').value.trim();
   const deviceId = document.getElementById('deviceId').value.trim().toUpperCase();
+  const remarks = document.getElementById('clientRemarks').value.trim();
+  const backupUrl = document.getElementById('clientBackupUrl').value.trim();
 
   if (!deviceId.startsWith('NX-') || deviceId.length < 18) {
     showIosToast('Invalid Device ID (Expected NX-XXXX-XXXX-XXXX-XXXX)');
@@ -326,10 +328,13 @@ async function handleGenerateKey(e) {
     expiryDate.setDate(expiryDate.getDate() + currentSelectedDays);
   }
 
-  let bitmask = 0x01;
-  if (document.getElementById('mod_ai').checked) bitmask |= 0x08;
-  if (document.getElementById('mod_delivery').checked) bitmask |= 0x04;
-  if (document.getElementById('mod_pda').checked) bitmask |= 0x02;
+  // Module Bitmask Calculation
+  let bitmask = 0x01; // Base Core
+  if (document.getElementById('mod_android_app').checked) bitmask |= 0x80; // Android Mobile ERP Suite
+  if (document.getElementById('mod_ai').checked) bitmask |= 0x08; // AI Purchase OCR
+  if (document.getElementById('mod_delivery').checked) bitmask |= 0x04; // Delivery Fleet & WhatsApp
+  if (document.getElementById('mod_pda').checked) bitmask |= 0x02; // PDA Stock Auditing
+  if (document.getElementById('mod_queue').checked) bitmask |= 0x20; // Queue-Busting POS
 
   const result = await generateNexaLicenseKey({
     deviceId,
@@ -350,6 +355,9 @@ async function handleGenerateKey(e) {
     formattedExpiry: expiryDate ? expiryDate.toLocaleDateString() : 'Lifetime Perpetual',
     signature: result.signature,
     bitmask,
+    remarks: remarks || '',
+    backupUrl: backupUrl || '',
+    hasAndroidApp: (bitmask & 0x80) !== 0,
     createdAt: new Date().toISOString(),
     status: 'ACTIVE'
   };
@@ -365,6 +373,16 @@ async function handleGenerateKey(e) {
   document.getElementById('passExpiry').textContent = lastGeneratedLicense.formattedExpiry;
   document.getElementById('passSignature').textContent = `HMAC: ${result.signature} (VALID)`;
 
+  // Remarks Banner
+  const remarksStrip = document.getElementById('passRemarksStrip');
+  const remarksText = document.getElementById('passRemarksText');
+  if (remarks) {
+    remarksStrip.classList.remove('hidden');
+    remarksText.textContent = remarks;
+  } else {
+    remarksStrip.classList.add('hidden');
+  }
+
   // Generate QR Code
   const qrCanvas = document.getElementById('passQrCanvas');
   const qrPayload = JSON.stringify({
@@ -372,7 +390,9 @@ async function handleGenerateKey(e) {
     dev: deviceId,
     key: result.licenseKey,
     exp: result.expHex,
-    tier: currentSelectedTier
+    tier: currentSelectedTier,
+    android_app: (bitmask & 0x80) !== 0,
+    remarks: remarks || undefined
   });
 
   if (window.QRCode) {
@@ -413,6 +433,9 @@ function downloadCertificateFile() {
     license_key: lastGeneratedLicense.licenseKey,
     expiry_date: lastGeneratedLicense.expiryDate,
     hmac_signature: lastGeneratedLicense.signature,
+    android_mobile_erp: lastGeneratedLicense.hasAndroidApp,
+    remarks: lastGeneratedLicense.remarks,
+    cloud_backup_vault: lastGeneratedLicense.backupUrl,
     issued_at: lastGeneratedLicense.createdAt,
     issuer: 'Nexora Enterprise Cloud Engine'
   };
@@ -429,12 +452,20 @@ function downloadCertificateFile() {
 
 function shareViaWhatsApp() {
   if (!lastGeneratedLicense) return;
-  const msg = `*NEXORA ENTERPRISE ACTIVATION CERTIFICATE*\n\n` +
+  let msg = `*NEXORA ENTERPRISE ACTIVATION CERTIFICATE*\n\n` +
     `🏢 *Client:* ${lastGeneratedLicense.orgName}\n` +
     `💻 *Hardware ID:* ${lastGeneratedLicense.deviceId}\n` +
     `🛡️ *License Tier:* ${lastGeneratedLicense.tierName}\n` +
-    `📅 *Validity:* ${lastGeneratedLicense.formattedExpiry}\n\n` +
-    `🔑 *License Key:*\n\`${lastGeneratedLicense.licenseKey}\`\n\n` +
+    `📅 *Validity:* ${lastGeneratedLicense.formattedExpiry}\n`;
+
+  if (lastGeneratedLicense.hasAndroidApp) {
+    msg += `📱 *Android Mobile ERP:* Enabled & Connected\n`;
+  }
+  if (lastGeneratedLicense.remarks) {
+    msg += `📝 *Notes/Features:* ${lastGeneratedLicense.remarks}\n`;
+  }
+
+  msg += `\n🔑 *License Key:*\n\`${lastGeneratedLicense.licenseKey}\`\n\n` +
     `*Activation Instructions:*\n` +
     `1. Open Nexora POS on your Windows terminal.\n` +
     `2. Enter your Organization Name & paste this License Key.\n` +
@@ -484,7 +515,7 @@ async function handleInspectKey() {
 }
 
 // =============================================================================
-// REGISTRY & CLIENT DATABASE
+// REGISTRY & CLIENT DATABASE (WITH REMARKS & CLOUD BACKUP VAULT ACCESS)
 // =============================================================================
 
 function getRegistry() {
@@ -507,6 +538,7 @@ function saveToRegistry(item) {
   localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(registry));
   updateRegistryCountPill();
   renderRegistryTable();
+  renderQuickBackupList();
 }
 
 function updateRegistryCountPill() {
@@ -525,6 +557,7 @@ function renderRegistryTable() {
     return item.orgName.toLowerCase().includes(search) ||
       item.deviceId.toLowerCase().includes(search) ||
       item.licenseKey.toLowerCase().includes(search) ||
+      (item.remarks && item.remarks.toLowerCase().includes(search)) ||
       (item.trn && item.trn.toLowerCase().includes(search));
   });
 
@@ -537,19 +570,104 @@ function renderRegistryTable() {
     <tr>
       <td>
         <strong style="color: var(--text-primary);">${escapeHtml(item.orgName)}</strong>
-        <div style="font-size: 0.7rem; color: var(--text-secondary);">${item.trn ? 'TRN: ' + escapeHtml(item.trn) : 'Standard'}</div>
+        <div style="font-size: 0.7rem; color: var(--text-secondary);">${item.trn ? 'TRN: ' + escapeHtml(item.trn) : 'Standard Client'}</div>
       </td>
       <td><code>${escapeHtml(item.deviceId)}</code></td>
-      <td><span class="pill-badge">${escapeHtml(item.tierCode)}</span></td>
-      <td><code style="color: var(--apple-blue); font-size: 0.78rem;">${escapeHtml(item.licenseKey)}</code></td>
+      <td>
+        <span class="pill-badge">${escapeHtml(item.tierCode)}</span>
+        ${item.hasAndroidApp ? '<span class="pill-badge" style="background: rgba(52, 199, 89, 0.15); color: var(--apple-green); margin-left: 2px;">📱 Android</span>' : ''}
+      </td>
+      <td>
+        <div class="remarks-text-cell">
+          ${item.remarks ? escapeHtml(item.remarks) : '<span style="color: var(--text-tertiary); font-style: italic;">No notes</span>'}
+        </div>
+      </td>
+      <td>
+        ${item.backupUrl ? `
+          <a href="${escapeHtml(item.backupUrl)}" target="_blank" class="backup-btn-link" title="Open Google Drive / Backup Vault">
+            ☁️ Open Vault
+          </a>
+        ` : '<span style="color: var(--text-tertiary); font-size: 0.72rem;">No Link</span>'}
+      </td>
       <td>${escapeHtml(item.formattedExpiry)}</td>
-      <td><span style="color: var(--apple-green); font-weight: 700; font-size: 0.72rem;">ACTIVE</span></td>
       <td class="text-right">
+        <button class="btn-ios-secondary" onclick="openEditModal('${item.id}')" title="Edit Remarks & Backup URL">Edit</button>
         <button class="btn-ios-secondary" onclick="copyTableKey('${escapeHtml(item.licenseKey)}')">Copy</button>
         <button class="btn-ios-secondary" onclick="deleteRegistryItem('${item.id}')">Delete</button>
       </td>
     </tr>
   `).join('');
+}
+
+function renderQuickBackupList() {
+  const container = document.getElementById('quickBackupList');
+  if (!container) return;
+
+  const registry = getRegistry();
+  const withBackups = registry.filter(r => r.backupUrl && r.backupUrl.trim().length > 0);
+
+  if (withBackups.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">
+        No client backup links configured yet. You can add a Google Drive or Cloud Backup link during key generation or by clicking "Edit" in the Registry tab.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = withBackups.map(item => `
+    <div class="quick-backup-row">
+      <div>
+        <strong>${escapeHtml(item.orgName)}</strong>
+        <small>Device: ${escapeHtml(item.deviceId)} • Tier: ${escapeHtml(item.tierCode)}</small>
+      </div>
+      <a href="${escapeHtml(item.backupUrl)}" target="_blank" class="btn-ios-primary" style="width: auto; padding: 8px 16px; font-size: 0.8rem;">
+        ☁️ Access Cloud Backup
+      </a>
+    </div>
+  `).join('');
+}
+
+function openEditModal(id) {
+  const registry = getRegistry();
+  const item = registry.find(r => r.id === id);
+  if (!item) return;
+
+  document.getElementById('editClientId').value = item.id;
+  document.getElementById('editClientOrg').value = item.orgName || '';
+  document.getElementById('editClientTrn').value = item.trn || '';
+  document.getElementById('editClientRemarks').value = item.remarks || '';
+  document.getElementById('editClientBackupUrl').value = item.backupUrl || '';
+
+  document.getElementById('editClientModal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+  document.getElementById('editClientModal').classList.add('hidden');
+}
+
+function saveClientEdits(e) {
+  e.preventDefault();
+  const id = document.getElementById('editClientId').value;
+  const org = document.getElementById('editClientOrg').value.trim();
+  const trn = document.getElementById('editClientTrn').value.trim();
+  const remarks = document.getElementById('editClientRemarks').value.trim();
+  const backupUrl = document.getElementById('editClientBackupUrl').value.trim();
+
+  let registry = getRegistry();
+  const index = registry.findIndex(r => r.id === id);
+  if (index >= 0) {
+    registry[index].orgName = org;
+    registry[index].trn = trn;
+    registry[index].remarks = remarks;
+    registry[index].backupUrl = backupUrl;
+
+    localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(registry));
+    renderRegistryTable();
+    renderQuickBackupList();
+    closeEditModal();
+    showIosToast('Client Record Updated Successfully');
+  }
 }
 
 function copyTableKey(key) {
@@ -563,6 +681,7 @@ function deleteRegistryItem(id) {
   localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(registry));
   updateRegistryCountPill();
   renderRegistryTable();
+  renderQuickBackupList();
   showIosToast('Record Removed');
 }
 
@@ -594,6 +713,7 @@ function handleImportJson(e) {
         localStorage.setItem(STORAGE_KEY_REGISTRY, JSON.stringify(data));
         updateRegistryCountPill();
         renderRegistryTable();
+        renderQuickBackupList();
         showIosToast(`Imported ${data.length} records`);
       } else {
         showIosToast('Invalid backup format');
@@ -627,7 +747,6 @@ function handleChangeMasterPasscode(e) {
     return;
   }
 
-  // Validate 8 characters with letters & numbers
   const hasLetter = /[a-zA-Z]/.test(next);
   const hasNumber = /[0-9]/.test(next);
 
@@ -649,6 +768,7 @@ function handleWipeVaultData() {
   localStorage.removeItem(STORAGE_KEY_PASSCODE);
   updateRegistryCountPill();
   renderRegistryTable();
+  renderQuickBackupList();
   showIosToast('Vault Erased & Reset');
 }
 
@@ -666,6 +786,8 @@ function switchIosTab(tabId, element) {
 
   if (tabId === 'registry') {
     renderRegistryTable();
+  } else if (tabId === 'backups') {
+    renderQuickBackupList();
   }
 }
 
@@ -705,6 +827,7 @@ function initPortalData() {
   updateExpiryCalculationLabel();
   updateRegistryCountPill();
   renderRegistryTable();
+  renderQuickBackupList();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
