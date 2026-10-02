@@ -101,6 +101,9 @@
           <span>Registry</span>
           <span class="count-pill" id="registryCountPill">0</span>
         </button>
+        <button class="seg-btn" onclick="switchIosTab('backups', this)">
+          <span>Cloud Backups</span>
+        </button>
         <button class="seg-btn" onclick="switchIosTab('settings', this)">
           <span>Settings</span>
         </button>
@@ -126,7 +129,7 @@
             <div class="card-title-bar">
               <div>
                 <h3>Issue Activation Certificate</h3>
-                <p class="subtitle">Generate cryptographic hardware-bound licenses</p>
+                <p class="subtitle">Generate cryptographic hardware-bound licenses & manage custom add-ons</p>
               </div>
             </div>
 
@@ -135,7 +138,7 @@
               <!-- Inset Group 1: Client Metadata -->
               <div class="ios-inset-group">
                 <div class="ios-cell">
-                  <label>Client Name</label>
+                  <label>Client Name <span class="text-red">*</span></label>
                   <input type="text" id="orgName" placeholder="Al Madina Supermarket LLC" required />
                 </div>
                 <div class="ios-cell">
@@ -148,8 +151,8 @@
               <div class="ios-inset-group">
                 <div class="ios-cell cell-with-action">
                   <div class="cell-label-row">
-                    <label>Hardware Device ID</label>
-                    <button type="button" class="btn-text-link" onclick="openHardwareGuide()">Help</button>
+                    <label>Hardware Device ID <span class="text-red">*</span></label>
+                    <button type="button" class="btn-text-link" onclick="openHardwareGuide()">Where to find?</button>
                   </div>
                   <div class="input-with-button">
                     <input type="text" id="deviceId" placeholder="NX-XXXX-XXXX-XXXX-XXXX" maxlength="23" oninput="formatHardwareId(this)" required />
@@ -202,9 +205,19 @@
                 <strong id="calcExpiryLabel">Loading...</strong>
               </div>
 
-              <!-- Inset Group 5: Enterprise Modules Toggle List -->
-              <div class="ios-section-header">ENABLED ENTERPRISE MODULES</div>
+              <!-- Inset Group 5: Enterprise Modules Toggle List (Including Android App Support) -->
+              <div class="ios-section-header">ENABLED PLATFORM MODULES</div>
               <div class="ios-inset-group module-toggles">
+                <div class="ios-toggle-cell">
+                  <div class="toggle-info">
+                    <strong>📱 Android Mobile ERP (Owner & Executive Suite)</strong>
+                    <small>Owner live sales analytics, financial oversight & mobile dashboard</small>
+                  </div>
+                  <label class="ios-switch">
+                    <input type="checkbox" id="mod_android_app" value="128" checked />
+                    <span class="slider"></span>
+                  </label>
+                </div>
                 <div class="ios-toggle-cell">
                   <div class="toggle-info">
                     <strong>AI Purchase Invoice OCR</strong>
@@ -234,6 +247,29 @@
                     <input type="checkbox" id="mod_pda" value="2" checked />
                     <span class="slider"></span>
                   </label>
+                </div>
+                <div class="ios-toggle-cell">
+                  <div class="toggle-info">
+                    <strong>Queue-Busting Mobile POS</strong>
+                    <small>Handheld mobile billing for peak checkout rushes</small>
+                  </div>
+                  <label class="ios-switch">
+                    <input type="checkbox" id="mod_queue" value="32" checked />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Inset Group 6: Client Remarks, Custom Features & Cloud Backup URL -->
+              <div class="ios-section-header">REMARKS & CLOUD BACKUP VAULT</div>
+              <div class="ios-inset-group">
+                <div class="ios-cell">
+                  <label>Custom Notes / Remarks</label>
+                  <input type="text" id="clientRemarks" placeholder="e.g. VIP Client, Added weighing scale integration, Annual AMC" />
+                </div>
+                <div class="ios-cell">
+                  <label>Cloud Backup Link / Drive</label>
+                  <input type="url" id="clientBackupUrl" placeholder="https://drive.google.com/drive/folders/..." />
                 </div>
               </div>
 
@@ -290,6 +326,12 @@
                     <small>CRYPTOGRAPHY</small>
                     <strong id="passSignature" class="text-green">HMAC-OK</strong>
                   </div>
+                </div>
+
+                <!-- Pass Remarks Strip if present -->
+                <div id="passRemarksStrip" class="pass-remarks-banner hidden">
+                  <small>REMARKS / ADD-ONS:</small>
+                  <span id="passRemarksText">-</span>
                 </div>
               </div>
 
@@ -352,13 +394,13 @@
         </div>
       </section>
 
-      <!-- TAB 3: CLIENT REGISTRY & DATABASE -->
+      <!-- TAB 3: CLIENT REGISTRY & DATABASE (WITH REMARKS & BACKUP VAULT ACCESS) -->
       <section id="tab-registry" class="ios-tab-view">
         <div class="ios-card">
           <div class="card-title-bar justify-between">
             <div>
-              <h3>Client Activation Registry</h3>
-              <p class="subtitle">Search, manage, and backup client license records</p>
+              <h3>Client Activation Registry & Fleet Ledger</h3>
+              <p class="subtitle">Manage client licenses, custom notes, add-ons, and cloud backup links</p>
             </div>
             <div class="header-actions">
               <button class="btn-ios-secondary" onclick="exportRegistryJson()">
@@ -373,10 +415,10 @@
             </div>
           </div>
 
-          <!-- iOS Search Bar -->
+          <!-- iOS Search & Filter Bar -->
           <div class="ios-search-bar">
             <svg viewBox="0 0 24 24" class="search-icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <input type="text" id="registrySearch" placeholder="Search by Client, TRN, or Device ID..." oninput="renderRegistryTable()" />
+            <input type="text" id="registrySearch" placeholder="Search by Client Name, Remarks, TRN, Device ID, or Key..." oninput="renderRegistryTable()" />
           </div>
 
           <!-- iOS Inset Grouped Table View -->
@@ -386,10 +428,10 @@
                 <tr>
                   <th>Client / TRN</th>
                   <th>Hardware Device ID</th>
-                  <th>Tier</th>
-                  <th>License Key</th>
+                  <th>Tier & Modules</th>
+                  <th>Remarks / Custom Features</th>
+                  <th>Cloud Backup Vault</th>
                   <th>Expiration</th>
-                  <th>Status</th>
                   <th class="text-right">Actions</th>
                 </tr>
               </thead>
@@ -401,7 +443,42 @@
         </div>
       </section>
 
-      <!-- TAB 4: SETTINGS & VAULT PASSWORD -->
+      <!-- TAB 4: CLOUD BACKUP HUB ARCHITECTURE -->
+      <section id="tab-backups" class="ios-tab-view">
+        <div class="ios-card max-w-4xl mx-auto">
+          <div class="card-title-bar">
+            <div>
+              <h3>Enterprise Automated Cloud Backup Hub</h3>
+              <p class="subtitle">Disaster recovery architecture & automated database snapshot management</p>
+            </div>
+          </div>
+
+          <div class="backup-info-grid">
+            <div class="backup-feature-box">
+              <div class="b-icon">🛡️</div>
+              <h4>Automated Store Snapshots</h4>
+              <p>Nexora POS runs scheduled background SQLite / DB encryption dumps during Day Close and pushes snapshots directly to your master cloud vault.</p>
+            </div>
+            <div class="backup-feature-box">
+              <div class="b-icon">☁️</div>
+              <h4>Google Drive & S3 Webhooks</h4>
+              <p>Each store is bound to a dedicated secure Drive folder ID. You can click "Open Vault" next to any client in the Registry to access their latest data.</p>
+            </div>
+            <div class="backup-feature-box">
+              <div class="b-icon">⚡</div>
+              <h4>1-Click Disaster Recovery</h4>
+              <p>If a client's computer suffers hardware failure or theft, simply issue a new hardware license and restore their encrypted backup snapshot in 60 seconds.</p>
+            </div>
+          </div>
+
+          <div class="ios-section-header mt-4">QUICK CLIENT BACKUP DIRECTORY</div>
+          <div id="quickBackupList" class="quick-backup-container">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SETTINGS & VAULT PASSWORD -->
       <section id="tab-settings" class="ios-tab-view">
         <div class="ios-split-grid max-w-4xl mx-auto">
           
@@ -449,6 +526,10 @@
                 <strong>FIPS 180-4 HMAC-SHA256</strong>
               </div>
               <div class="ios-cell-static">
+                <span>Android App Module:</span>
+                <strong>Bitmask 0x80 (Active)</strong>
+              </div>
+              <div class="ios-cell-static">
                 <span>Hardware Binding:</span>
                 <strong>Motherboard-CPU Hash</strong>
               </div>
@@ -477,6 +558,44 @@
       <span>© 2026 <strong>Nexora Enterprise Technologies</strong>. All Rights Reserved.</span>
       <span class="badge-secure">🔒 End-to-End Cryptographically Secured</span>
     </footer>
+  </div>
+
+  <!-- EDIT CLIENT MODAL / SHEET -->
+  <div id="editClientModal" class="ios-sheet-backdrop hidden">
+    <div class="ios-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3>Edit Client Remarks & Cloud Backup</h3>
+        <button class="btn-close-sheet" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editClientForm" onsubmit="saveClientEdits(event)">
+        <input type="hidden" id="editClientId" />
+        
+        <div class="ios-inset-group">
+          <div class="ios-cell">
+            <label>Client Name</label>
+            <input type="text" id="editClientOrg" required />
+          </div>
+          <div class="ios-cell">
+            <label>TRN Number</label>
+            <input type="text" id="editClientTrn" />
+          </div>
+          <div class="ios-cell">
+            <label>Remarks / Notes</label>
+            <input type="text" id="editClientRemarks" placeholder="Special features, agreements, extra add-ons" />
+          </div>
+          <div class="ios-cell">
+            <label>Cloud Backup Link</label>
+            <input type="url" id="editClientBackupUrl" placeholder="https://drive.google.com/drive/folders/..." />
+          </div>
+        </div>
+
+        <div class="sheet-footer flex-gap">
+          <button type="button" class="btn-ios-secondary flex-1" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn-ios-primary flex-1">Save Changes</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- HARDWARE ID FINDER SHEET -->
