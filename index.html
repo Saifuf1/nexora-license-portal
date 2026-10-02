@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Nexora License Master</title>
+  <meta name="description" content="Apple-grade zero-knowledge cloud licensing and hardware key management console for Nexora ERP." />
+  <meta name="theme-color" content="#F2F2F7" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23007AFF'><path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/></svg>" />
+  <!-- Apple SF Pro / Inter Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <!-- QR Code Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body class="ios-light-theme">
+
+  <!-- Ambient Light Mesh Background -->
+  <div class="ambient-mesh">
+    <div class="mesh-orb orb-1"></div>
+    <div class="mesh-orb orb-2"></div>
+    <div class="mesh-orb orb-3"></div>
+  </div>
+
+  <!-- =========================================================================
+       macOS / iOS 18 LIGHT PASSCODE LOCK SCREEN (8-char Alphanumeric)
+       ========================================================================= -->
+  <div id="authGate" class="ios-lock-screen">
+    <div class="lock-card" id="lockCard">
+      
+      <!-- Apple Avatar / Security Shield -->
+      <div class="lock-avatar">
+        <div class="avatar-ring">
+          <svg viewBox="0 0 24 24" class="icon-avatar">
+            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="lock-title">Administrator</h1>
+      <p class="lock-subtitle">Nexora Enterprise Security Vault</p>
+
+      <!-- 8-Character Password Form -->
+      <form id="passcodeForm" onsubmit="handlePasscodeSubmit(event)" class="lock-form">
+        <div class="password-input-container">
+          <input 
+            type="password" 
+            id="vaultPasswordInput" 
+            placeholder="Enter Passcode" 
+            minlength="8" 
+            maxlength="20"
+            autocomplete="current-password"
+            autofocus 
+            required 
+          />
+          <button type="button" class="btn-toggle-view" onclick="togglePasswordVisibility()" title="Show/Hide">
+            <svg id="eyeIcon" viewBox="0 0 24 24" class="icon-eye"><path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          </button>
+          <button type="submit" id="btnSubmitLock" class="btn-arrow-submit" title="Unlock">
+            <svg viewBox="0 0 24 24" class="icon-arrow"><path fill="currentColor" d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-7.85-1.42 1.42L16.86 11H5v2z"/></svg>
+          </button>
+        </div>
+        <p id="lockErrorMsg" class="lock-error-text"></p>
+      </form>
+
+      <div class="lock-footer">
+        <span>🔒 Zero-Knowledge Hardware Protection</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MAIN macOS / iOS RETINA APPLICATION PORTAL (LIGHT THEME)
+       ========================================================================= -->
+  <div id="mainApp" class="app-viewport hidden">
+    
+    <!-- Cupertino Floating Header -->
+    <header class="cupertino-nav-bar">
+      <div class="nav-left">
+        <div class="apple-logo-badge">
+          <svg viewBox="0 0 24 24" class="icon-logo"><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="brand-titles">
+          <h2>Nexora <span>License</span></h2>
+          <span class="badge-fips">FIPS 180-4 HMAC-SHA256</span>
+        </div>
+      </div>
+
+      <!-- iOS Segmented Control -->
+      <nav class="ios-segmented-control">
+        <button class="seg-btn active" onclick="switchIosTab('generator', this)">
+          <span>Generator</span>
+        </button>
+        <button class="seg-btn" onclick="switchIosTab('inspector', this)">
+          <span>Inspector</span>
+        </button>
+        <button class="seg-btn" onclick="switchIosTab('registry', this)">
+          <span>Registry</span>
+          <span class="count-pill" id="registryCountPill">0</span>
+        </button>
+        <button class="seg-btn" onclick="switchIosTab('settings', this)">
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="nav-right">
+        <button class="btn-ios-lock" onclick="lockVault()" title="Lock Session">
+          <svg viewBox="0 0 24 24" class="icon-lock"><path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          <span>Lock</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Viewport -->
+    <main class="ios-main-content">
+
+      <!-- TAB 1: KEY GENERATOR -->
+      <section id="tab-generator" class="ios-tab-view active">
+        <div class="ios-split-grid">
+          
+          <!-- Left Column: Input Form (iOS Inset Grouped Form) -->
+          <div class="ios-card">
+            <div class="card-title-bar">
+              <div>
+                <h3>Issue Activation Certificate</h3>
+                <p class="subtitle">Generate cryptographic hardware-bound licenses</p>
+              </div>
+            </div>
+
+            <form id="keyGenForm" onsubmit="handleGenerateKey(event)">
+              
+              <!-- Inset Group 1: Client Metadata -->
+              <div class="ios-inset-group">
+                <div class="ios-cell">
+                  <label>Client Name</label>
+                  <input type="text" id="orgName" placeholder="Al Madina Supermarket LLC" required />
+                </div>
+                <div class="ios-cell">
+                  <label>TRN Number</label>
+                  <input type="text" id="trnNumber" placeholder="100234567800003" />
+                </div>
+              </div>
+
+              <!-- Inset Group 2: Hardware Fingerprint -->
+              <div class="ios-inset-group">
+                <div class="ios-cell cell-with-action">
+                  <div class="cell-label-row">
+                    <label>Hardware Device ID</label>
+                    <button type="button" class="btn-text-link" onclick="openHardwareGuide()">Help</button>
+                  </div>
+                  <div class="input-with-button">
+                    <input type="text" id="deviceId" placeholder="NX-XXXX-XXXX-XXXX-XXXX" maxlength="23" oninput="formatHardwareId(this)" required />
+                    <button type="button" class="btn-cell-action" onclick="pasteHardwareId()" title="Paste">
+                      <svg viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Inset Group 3: Tier Selection -->
+              <div class="ios-section-header">LICENSE TIER</div>
+              <div class="ios-tier-selector">
+                <div class="tier-pill-opt active" onclick="selectIosTier('STD', this)">
+                  <div class="pill-badge">STD</div>
+                  <div class="pill-text">
+                    <strong>Standard POS</strong>
+                    <small>2 Counter Lanes</small>
+                  </div>
+                </div>
+                <div class="tier-pill-opt" onclick="selectIosTier('PRO', this)">
+                  <div class="pill-badge pro">PRO</div>
+                  <div class="pill-text">
+                    <strong>Supermarket Pro</strong>
+                    <small>5 Lanes + AI Bills</small>
+                  </div>
+                </div>
+                <div class="tier-pill-opt" onclick="selectIosTier('ENT', this)">
+                  <div class="pill-badge ent">ENT</div>
+                  <div class="pill-text">
+                    <strong>Enterprise</strong>
+                    <small>Unlimited + PDA</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Inset Group 4: Duration -->
+              <div class="ios-section-header">EXPIRATION DURATION</div>
+              <div class="ios-duration-chips">
+                <button type="button" class="d-chip" onclick="setIosDuration(30, this)">30 Days</button>
+                <button type="button" class="d-chip active" onclick="setIosDuration(365, this)">1 Year</button>
+                <button type="button" class="d-chip" onclick="setIosDuration(1095, this)">3 Years</button>
+                <button type="button" class="d-chip" onclick="setIosDuration(0, this)">Lifetime</button>
+                <button type="button" class="d-chip" onclick="showCustomDateIos(this)">Custom</button>
+              </div>
+              <input type="date" id="customExpiryDateIos" class="ios-date-input hidden" onchange="onCustomDateSelectedIos()" />
+
+              <div class="expiry-preview-strip">
+                <span>Calculated Expiry:</span>
+                <strong id="calcExpiryLabel">Loading...</strong>
+              </div>
+
+              <!-- Inset Group 5: Enterprise Modules Toggle List -->
+              <div class="ios-section-header">ENABLED ENTERPRISE MODULES</div>
+              <div class="ios-inset-group module-toggles">
+                <div class="ios-toggle-cell">
+                  <div class="toggle-info">
+                    <strong>AI Purchase Invoice OCR</strong>
+                    <small>Auto-scans vendor bills & extracts items</small>
+                  </div>
+                  <label class="ios-switch">
+                    <input type="checkbox" id="mod_ai" value="8" checked />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="ios-toggle-cell">
+                  <div class="toggle-info">
+                    <strong>Delivery Hub & WhatsApp Ledger</strong>
+                    <small>Live driver sync and automated statements</small>
+                  </div>
+                  <label class="ios-switch">
+                    <input type="checkbox" id="mod_delivery" value="4" checked />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                <div class="ios-toggle-cell">
+                  <div class="toggle-info">
+                    <strong>Inventory PDA & Auditing</strong>
+                    <small>Real-time barcode stock counting</small>
+                  </div>
+                  <label class="ios-switch">
+                    <input type="checkbox" id="mod_pda" value="2" checked />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Main Action Button -->
+              <button type="submit" class="btn-ios-primary">
+                <svg viewBox="0 0 24 24" class="icon-btn"><path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                Generate Cryptographic License
+              </button>
+            </form>
+          </div>
+
+          <!-- Right Column: Apple Wallet Style Titanium Pass & Delivery Hub -->
+          <div class="ios-card result-column">
+            
+            <div id="emptyResultBox" class="ios-empty-pass">
+              <div class="empty-pass-icon">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+              </div>
+              <h4>Apple Wallet Style Certificate</h4>
+              <p>Fill in the client information on the left to generate an authentic cryptographic license card.</p>
+            </div>
+
+            <!-- Light Titanium Silver Pass Card -->
+            <div id="generatedPassBox" class="apple-wallet-pass hidden">
+              
+              <div class="titanium-card-light">
+                <div class="card-top-row">
+                  <div class="pass-brand">
+                    <div class="pass-chip-gold"></div>
+                    <span class="pass-brand-text">NEXORA PASSPORT</span>
+                  </div>
+                  <span id="passTierBadge" class="pass-tier-badge">STANDARD</span>
+                </div>
+
+                <div class="pass-key-display">
+                  <small>ACTIVATION LICENSE KEY</small>
+                  <code id="passLicenseKey">NEXA-STD-FFFFFFFF-XXXXXXXX-XXXXXXXX</code>
+                </div>
+
+                <div class="pass-meta-grid">
+                  <div class="meta-item">
+                    <small>ORGANIZATION</small>
+                    <strong id="passOrgName">-</strong>
+                  </div>
+                  <div class="meta-item">
+                    <small>DEVICE SIGNATURE</small>
+                    <strong id="passDeviceId">-</strong>
+                  </div>
+                  <div class="meta-item">
+                    <small>VALIDITY</small>
+                    <strong id="passExpiry">-</strong>
+                  </div>
+                  <div class="meta-item">
+                    <small>CRYPTOGRAPHY</small>
+                    <strong id="passSignature" class="text-green">HMAC-OK</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pass Actions: Copy, QR, Certificate, WhatsApp -->
+              <div class="pass-actions-container">
+                <div class="pass-qr-box">
+                  <canvas id="passQrCanvas"></canvas>
+                  <small>Scan with PDA Camera</small>
+                </div>
+
+                <div class="pass-buttons-grid">
+                  <button type="button" class="btn-pass-action primary" onclick="copyGeneratedKey()">
+                    <svg viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    <span id="copyBtnLabel">Copy License Key</span>
+                  </button>
+                  <button type="button" class="btn-pass-action" onclick="downloadCertificateFile()">
+                    <svg viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+                    <span>Download (.nexc)</span>
+                  </button>
+                  <button type="button" class="btn-pass-action whatsapp" onclick="shareViaWhatsApp()">
+                    <svg viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+                    <span>Send via WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: KEY INSPECTOR -->
+      <section id="tab-inspector" class="ios-tab-view">
+        <div class="ios-card max-w-3xl mx-auto">
+          <div class="card-title-bar">
+            <div>
+              <h3>Cryptographic Key Inspector</h3>
+              <p class="subtitle">Real-time HMAC signature verification & tamper diagnostics</p>
+            </div>
+          </div>
+
+          <div class="ios-inset-group">
+            <div class="ios-cell">
+              <label>License Key</label>
+              <input type="text" id="inspectKey" placeholder="NEXA-STD-FFFFFFFF-XXXXXXXX-XXXXXXXX" />
+            </div>
+            <div class="ios-cell">
+              <label>Hardware Device ID</label>
+              <input type="text" id="inspectDeviceId" placeholder="NX-XXXX-XXXX-XXXX-XXXX" />
+            </div>
+          </div>
+
+          <button type="button" class="btn-ios-primary mt-4" onclick="handleInspectKey()">
+            <svg viewBox="0 0 24 24" class="icon-btn"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            Verify Cryptographic Seal
+          </button>
+
+          <div id="inspectResultBox" class="ios-inspect-card hidden"></div>
+        </div>
+      </section>
+
+      <!-- TAB 3: CLIENT REGISTRY & DATABASE -->
+      <section id="tab-registry" class="ios-tab-view">
+        <div class="ios-card">
+          <div class="card-title-bar justify-between">
+            <div>
+              <h3>Client Activation Registry</h3>
+              <p class="subtitle">Search, manage, and backup client license records</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn-ios-secondary" onclick="exportRegistryJson()">
+                <svg viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                Export
+              </button>
+              <button class="btn-ios-secondary" onclick="triggerImportJson()">
+                <svg viewBox="0 0 24 24" class="icon-sm"><path fill="currentColor" d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+                Import
+              </button>
+              <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="handleImportJson(event)" />
+            </div>
+          </div>
+
+          <!-- iOS Search Bar -->
+          <div class="ios-search-bar">
+            <svg viewBox="0 0 24 24" class="search-icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" id="registrySearch" placeholder="Search by Client, TRN, or Device ID..." oninput="renderRegistryTable()" />
+          </div>
+
+          <!-- iOS Inset Grouped Table View -->
+          <div class="ios-table-wrapper">
+            <table class="ios-table">
+              <thead>
+                <tr>
+                  <th>Client / TRN</th>
+                  <th>Hardware Device ID</th>
+                  <th>Tier</th>
+                  <th>License Key</th>
+                  <th>Expiration</th>
+                  <th>Status</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="registryTableBody">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: SETTINGS & VAULT PASSWORD -->
+      <section id="tab-settings" class="ios-tab-view">
+        <div class="ios-split-grid max-w-4xl mx-auto">
+          
+          <div class="ios-card">
+            <div class="card-title-bar">
+              <div>
+                <h3>Change Security Passcode</h3>
+                <p class="subtitle">Set an 8-character password with letters and numbers</p>
+              </div>
+            </div>
+
+            <form onsubmit="handleChangeMasterPasscode(event)">
+              <div class="ios-inset-group">
+                <div class="ios-cell">
+                  <label>Current Passcode</label>
+                  <input type="password" id="currentPasscode" required />
+                </div>
+                <div class="ios-cell">
+                  <label>New Passcode (8+ chars)</label>
+                  <input type="password" id="newPasscode" minlength="8" required />
+                </div>
+                <div class="ios-cell">
+                  <label>Confirm Passcode</label>
+                  <input type="password" id="confirmNewPasscode" minlength="8" required />
+                </div>
+              </div>
+
+              <button type="submit" class="btn-ios-primary mt-4">
+                Update Security Passcode
+              </button>
+            </form>
+          </div>
+
+          <div class="ios-card">
+            <div class="card-title-bar">
+              <div>
+                <h3>Cryptographic Engine</h3>
+                <p class="subtitle">Nexora Enterprise v2026 Core</p>
+              </div>
+            </div>
+
+            <div class="ios-inset-group">
+              <div class="ios-cell-static">
+                <span>Standard:</span>
+                <strong>FIPS 180-4 HMAC-SHA256</strong>
+              </div>
+              <div class="ios-cell-static">
+                <span>Hardware Binding:</span>
+                <strong>Motherboard-CPU Hash</strong>
+              </div>
+              <div class="ios-cell-static">
+                <span>Zero Knowledge:</span>
+                <strong>Client-Side WebCrypto</strong>
+              </div>
+            </div>
+
+            <div class="danger-box mt-4">
+              <h4>Reset Local Vault</h4>
+              <p>Wipe all local client keys and reset password to default (<code>Nexa2026</code>).</p>
+              <button type="button" class="btn-ios-danger" onclick="handleWipeVaultData()">
+                Erase All Data
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Cupertino Footer -->
+    <footer class="ios-footer">
+      <span>© 2026 <strong>Nexora Enterprise Technologies</strong>. All Rights Reserved.</span>
+      <span class="badge-secure">🔒 End-to-End Cryptographically Secured</span>
+    </footer>
+  </div>
+
+  <!-- HARDWARE ID FINDER SHEET -->
+  <div id="hwModal" class="ios-sheet-backdrop hidden">
+    <div class="ios-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3>How to Find Hardware Device ID</h3>
+        <button class="btn-close-sheet" onclick="closeHardwareGuide()">&times;</button>
+      </div>
+      <div class="sheet-body">
+        <div class="ios-step-card">
+          <div class="step-badge">1</div>
+          <div>
+            <strong>Inside Nexora POS Desktop App:</strong>
+            <p>Open <strong>Settings</strong> &gt; Click <strong>Store &amp; Licensing</strong> &gt; Copy the <strong>Hardware Device ID</strong> displayed at the top (starts with <code>NX-</code>).</p>
+          </div>
+        </div>
+        <div class="ios-step-card">
+          <div class="step-badge">2</div>
+          <div>
+            <strong>On POS Activation Screen:</strong>
+            <p>If the terminal is not yet activated, click the <strong>"Copy Hardware ID"</strong> button on the startup modal.</p>
+          </div>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn-ios-primary" onclick="closeHardwareGuide()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="ios-toast-dock"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
