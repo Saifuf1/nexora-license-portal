@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nexora ERP — License Master & AI Support Studio</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 6.4 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            },
+            surface: {
+              bg: '#060913',
+              card: '#0B1120',
+              cardHover: '#0F172A',
+              border: '#1E293B',
+              borderLight: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #060913;
+      color: #E2E8F0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Smooth Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 999px;
+    }
+    /* Minimalist Glass & Glow */
+    .glass-panel {
+      background: rgba(11, 17, 32, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.2);
+    }
+    .glow-purple {
+      box-shadow: 0 0 30px -5px rgba(168, 85, 247, 0.2);
+    }
+    /* Safe Area Inset for iOS bottom bar */
+    .safe-bottom {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+    /* Tab active state */
+    .nav-tab.active {
+      color: #10B981;
+    }
+    .nav-tab.active .nav-icon-wrapper {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #34D399;
+    }
+  </style>
+</head>
+<body class="selection:bg-emerald-500 selection:text-white flex flex-col justify-between">
+
+  <!-- ========================================== -->
+  <!-- 🔒 SECURITY AUTHENTICATION LOCK SCREEN     -->
+  <!-- ========================================== -->
+  <div id="authLockOverlay" class="fixed inset-0 z-[100] bg-[#060913] flex items-center justify-center p-4">
+    <div class="w-full max-w-sm glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden text-center">
+      <!-- Glow ambient background -->
+      <div class="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10">
+        <!-- Logo -->
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/25 mb-4">
+          <i class="fa-solid fa-shield-halved text-xl text-white"></i>
+        </div>
+        
+        <div class="inline-flex items-center space-x-1.5 bg-emerald-500/10 text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/20 mb-2">
+          <i class="fa-solid fa-lock text-[9px]"></i>
+          <span>PROTECTED GATEWAY</span>
+        </div>
+        
+        <h2 class="text-xl font-black text-white tracking-wide">NEXORA ERP</h2>
+        <p class="text-[11px] text-slate-400 mb-6">License Master & AI Assistant Hub</p>
+
+        <form id="authLoginForm" onsubmit="handleAuthLogin(event)" class="space-y-3.5">
+          <div class="text-left">
+            <div class="relative">
+              <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+              <input 
+                type="password" 
+                id="authPasswordInput" 
+                placeholder="Enter password..." 
+                required
+                autocomplete="current-password"
+                class="w-full bg-slate-900/90 text-xs text-white pl-9 pr-10 py-3 rounded-2xl border border-slate-700/80 focus:outline-none focus:border-emerald-500 font-mono transition-all placeholder-slate-500"
+              >
+              <button 
+                type="button" 
+                onclick="togglePasswordVisibility('authPasswordInput', 'authEyeIcon')" 
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+              >
+                <i id="authEyeIcon" class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="authErrorMsg" class="hidden p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-[11px] text-left flex items-center space-x-2">
+            <i class="fa-solid fa-circle-exclamation text-xs"></i>
+            <span>Incorrect password. Access denied.</span>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3 rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center space-x-2 text-xs"
+          >
+            <span>Unlock Portal</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </form>
+
+        <div class="mt-5 pt-4 border-t border-slate-800/80 text-[10px] text-slate-500 flex items-center justify-center space-x-3 font-mono">
+          <span>HMAC-SHA256</span>
+          <span>•</span>
+          <span>OFFLINE LAN</span>
+          <span>•</span>
+          <span>AI TECH</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 🌐 SLIM TOP HEADER (Mobile & Desktop)      -->
+  <!-- ========================================== -->
+  <header class="glass-panel sticky top-0 z-40 border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-500/20 text-white text-xs">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-sm font-black text-white tracking-wide">NEXORA</span>
+            <span class="text-[9px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded font-extrabold border border-emerald-500/20">LICENSE</span>
+          </div>
+          <p class="text-[9px] text-slate-400 font-mono hidden sm:block">Hardware-Locked Cryptography & AI Hub</p>
+        </div>
+      </div>
+
+      <!-- Quick KPI Chips & Lock Button -->
+      <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2 bg-slate-900/90 px-2.5 py-1 rounded-xl border border-slate-800 text-[10px] font-mono">
+          <span class="flex items-center space-x-1 text-emerald-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="headerStatActive">0</span> <span class="text-slate-500 hidden sm:inline">Active</span>
+          </span>
+          <span class="text-slate-700">|</span>
+          <span class="text-amber-400">
+            <span id="headerStatExpiring">0</span> <span class="text-slate-500 hidden sm:inline">&lt;30d</span>
+          </span>
+        </div>
+
+        <!-- Lock Button -->
+        <button 
+          onclick="lockPortal()" 
+          class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:border-red-500/40 text-slate-400 hover:text-red-400 flex items-center justify-center text-xs transition-all"
+          title="Lock Session"
+        >
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 📱 MAIN VIEWPORT (SWITCHABLE TABS)         -->
+  <!-- ========================================== -->
+  <main class="max-w-5xl mx-auto w-full px-3.5 sm:px-4 py-4 flex-1 mb-20 md:mb-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: ⚡ LICENSE GENERATOR (DEFAULT)       -->
+    <!-- ========================================== -->
+    <section id="tab-generator" class="space-y-4">
+      
+      <!-- Studio Header Card -->
+      <div class="glass-card p-4 rounded-3xl relative overflow-hidden border border-slate-800">
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <h2 class="text-sm font-bold text-white">License Generator Studio</h2>
+          </div>
+          <span class="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">HMAC-SHA256</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Create cryptographic license keys with custom validity and granular module switches.</p>
+      </div>
+
+      <!-- Generator Form -->
+      <form id="keyGenForm" onsubmit="handleGenerateKey(event)" class="space-y-3.5">
+        
+        <!-- 1. Store & Hardware ID -->
+        <div class="glass-card p-4 rounded-3xl space-y-3 border border-slate-800/80">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 flex items-center space-x-1.5">
+              <i class="fa-solid fa-store"></i>
+              <span>1. Client & Hardware Code</span>
+            </span>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- Hardware ID Input -->
+            <div>
+              <label class="block text-[11px] text-slate-300 font-semibold mb-1 flex items-center justify-between">
+                <span>Hardware ID *</span>
+                <span class="text-[9px] text-emerald-400 font-mono">Starts with NX-</span>
+              </label>
+              <div class="relative">
+                <i class="fa-solid fa-laptop-code absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                <input 
+                  type="text" 
+                  id="genDeviceId" 
+                  required 
+                  placeholder="NX-F6DD-2303-9058-9BD4" 
+                  class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl pl-8 pr-3 py-2.5 text-xs text-white font-mono uppercase tracking-wider focus:outline-none focus:border-emerald-500 placeholder-slate-600"
+                >
+              </div>
+            </div>
+
+            <!-- Client & Branch -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] text-slate-300 font-semibold mb-1">Store / Supermarket Name *</label>
+                <input type="text" id="genOrgName" required placeholder="e.g. Al Madina Supermarket" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder-slate-600">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-300 font-semibold mb-1">Mobile / WhatsApp * (min 7 digits)</label>
+                <input type="text" id="genPhone" required placeholder="e.g. +971 50 123 4567" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder-slate-600">
+              </div>
+            </div>
+
+            <!-- Optional Branch & TRN -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] text-slate-300 font-semibold mb-1">Branch / City</label>
+                <input type="text" id="genBranch" placeholder="e.g. Deira, Dubai" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 placeholder-slate-600">
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-300 font-semibold mb-1">FTA TRN (Optional)</label>
+                <input type="text" id="genTrn" placeholder="e.g. 100458921100003" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder-slate-600">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Validity Duration & Devices -->
+        <div class="glass-card p-4 rounded-3xl space-y-3 border border-slate-800/80">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-400 flex items-center space-x-1.5">
+              <i class="fa-solid fa-clock"></i>
+              <span>2. Validity Duration & Plan</span>
+            </span>
+            <span id="calculatedExpiryPreview" class="text-[10px] text-emerald-400 font-bold font-mono">Expires: --/--/----</span>
+          </div>
+
+          <!-- Quick Validity Chips -->
+          <div class="space-y-1.5">
+            <label class="block text-[11px] text-slate-300 font-semibold">Select Validity Preset or Enter Custom Days</label>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-xs">
+              <button type="button" onclick="setValidityPreset('10')" class="validity-chip bg-slate-900 hover:bg-slate-800 border border-slate-700/70 text-slate-300 py-1.5 rounded-xl font-mono text-[11px]">10 Days</button>
+              <button type="button" onclick="setValidityPreset('30')" class="validity-chip bg-slate-900 hover:bg-slate-800 border border-slate-700/70 text-slate-300 py-1.5 rounded-xl font-mono text-[11px]">30 Days</button>
+              <button type="button" onclick="setValidityPreset('90')" class="validity-chip bg-slate-900 hover:bg-slate-800 border border-slate-700/70 text-slate-300 py-1.5 rounded-xl font-mono text-[11px]">90 Days</button>
+              <button type="button" onclick="setValidityPreset('360')" class="validity-chip bg-slate-900 hover:bg-slate-800 border border-slate-700/70 text-slate-300 py-1.5 rounded-xl font-mono text-[11px]">360 Days</button>
+              <button type="button" onclick="setValidityPreset('365')" class="validity-chip active bg-emerald-500/20 border border-emerald-500 text-emerald-300 py-1.5 rounded-xl font-mono text-[11px] font-bold">1 Year</button>
+              <button type="button" onclick="setValidityPreset('LIFETIME')" class="validity-chip bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 py-1.5 rounded-xl font-mono text-[11px]">Lifetime</button>
+            </div>
+          </div>
+
+          <!-- Custom Days and Plan Tier in 1 Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+            <div>
+              <label class="block text-[11px] text-slate-300 font-semibold mb-1">Custom Validity (Days)</label>
+              <input 
+                type="number" 
+                id="genCustomDays" 
+                min="1" 
+                max="36500" 
+                value="365" 
+                oninput="updateExpiryCalculation()" 
+                class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
+              >
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-300 font-semibold mb-1">Plan Tier</label>
+              <select id="genTier" onchange="handleTierChange()" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <option value="ENT" selected>Enterprise (Unlimited)</option>
+                <option value="PRO">Supermarket Pro (5 POS)</option>
+                <option value="STD">Standard (2 POS)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-300 font-semibold mb-1">Max Devices Quota</label>
+              <input type="number" id="genMaxDevices" min="1" max="999" value="999" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Granular Module Bitmask Checkboxes -->
+        <div class="glass-card p-4 rounded-3xl space-y-2.5 border border-slate-800/80">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 flex items-center space-x-1.5">
+              <i class="fa-solid fa-cubes-stacked"></i>
+              <span>3. Granular Feature Switches</span>
+            </span>
+            <div class="flex items-center space-x-2 text-[10px]">
+              <button type="button" onclick="toggleAllFeatures(true)" class="text-emerald-400 font-bold hover:underline">All</button>
+              <span class="text-slate-600">|</span>
+              <button type="button" onclick="toggleAllFeatures(false)" class="text-slate-400 hover:underline">Base</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+            
+            <!-- Feature: Android POS -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modQueueBusting" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">Android POS</span>
+            </label>
+
+            <!-- Feature: Android PDA -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modPda" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">Android PDA</span>
+            </label>
+
+            <!-- Feature: Delivery App -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modDelivery" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">Delivery App</span>
+            </label>
+
+            <!-- Feature: Executive AI -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modExecutiveAi" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">Executive AI</span>
+            </label>
+
+            <!-- Feature: AI Bill Scanner -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modAiBill" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">AI Bill OCR</span>
+            </label>
+
+            <!-- Feature: WhatsApp Ledger -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modWhatsApp" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">WhatsApp</span>
+            </label>
+
+            <!-- Feature: Cloud Sync -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 cursor-pointer">
+              <input type="checkbox" id="modCloudSync" checked class="rounded text-emerald-500 focus:ring-0 bg-slate-800" onchange="updateLiveBitmaskPreview()">
+              <span class="text-[11px] font-bold text-slate-200">Cloud Sync</span>
+            </label>
+
+            <!-- Feature: Base POS -->
+            <label class="flex items-center space-x-2 p-2 rounded-2xl bg-slate-900/80 border border-slate-800 opacity-80">
+              <input type="checkbox" id="modBasePos" checked disabled class="rounded text-emerald-500 focus:ring-0 bg-slate-800">
+              <span class="text-[11px] font-bold text-slate-400">Base POS</span>
+            </label>
+
+          </div>
+
+          <div class="flex items-center justify-between pt-1 text-[10px] text-slate-400 font-mono">
+            <span>Bitmask: <strong id="bitmaskHexPreview" class="text-emerald-400">0xFF</strong></span>
+            <span id="featuresSelectedSummary">8/8 Active</span>
+          </div>
+        </div>
+
+        <!-- Submit Action Button -->
+        <button 
+          type="submit" 
+          class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold py-3.5 rounded-2xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center space-x-2 text-xs tracking-wide"
+        >
+          <i class="fa-solid fa-bolt text-xs"></i>
+          <span>Generate Cryptographic License Key</span>
+        </button>
+
+      </form>
+
+      <!-- ========================================== -->
+      <!-- 🎁 KEY GENERATION RESULT DISPLAY CARD       -->
+      <!-- ========================================== -->
+      <div id="keyOutputBox" class="hidden glass-card p-4 rounded-3xl border border-emerald-500/50 glow-emerald space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold text-emerald-400 flex items-center space-x-1.5">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Key Generated Successfully</span>
+          </span>
+          <span id="outputExpiryBadge" class="text-[9px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 font-mono">1 YEAR</span>
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center space-x-1.5">
+            <input 
+              type="text" 
+              id="generatedKeyField" 
+              readonly 
+              class="w-full bg-slate-900 text-emerald-300 font-mono text-xs px-3 py-2.5 rounded-2xl border border-emerald-500/30 focus:outline-none font-bold select-all"
+            >
+            <button 
+              type="button" 
+              onclick="copyGeneratedKey()" 
+              class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-2.5 rounded-2xl transition-all flex items-center space-x-1 shrink-0"
+              title="Copy"
+            >
+              <i class="fa-solid fa-copy"></i>
+              <span class="hidden sm:inline">Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button 
+            type="button" 
+            onclick="shareWhatsAppFromOutput()" 
+            class="bg-emerald-700/70 hover:bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-2xl flex items-center justify-center space-x-1.5 transition-all"
+          >
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+            <span>WhatsApp</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="switchTab('roster')" 
+            class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-2xl transition-all"
+          >
+            <span>View in Roster</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: 📋 CLIENT ROSTER & DEVICE TRACKER   -->
+    <!-- ========================================== -->
+    <section id="tab-roster" class="hidden space-y-4">
+      
+      <!-- Top Roster Toolbar -->
+      <div class="glass-card p-4 rounded-3xl space-y-3 border border-slate-800">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white">Client Roster & Devices</h2>
+            <p class="text-[11px] text-slate-400">Track active subscriptions, validity countdown & paired hardware</p>
+          </div>
+          <button onclick="switchTab('generator')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl flex items-center space-x-1 shadow-md">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>New Key</span>
+          </button>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="relative">
+            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input 
+              type="text" 
+              id="searchInput" 
+              oninput="renderClientCards()" 
+              placeholder="Search store, TRN, Hardware ID..." 
+              class="w-full bg-slate-900 text-xs text-white pl-8 pr-3 py-2 rounded-2xl border border-slate-700/80 focus:outline-none focus:border-emerald-500 placeholder-slate-500 font-mono"
+            >
+          </div>
+
+          <select 
+            id="filterStatus" 
+            onchange="renderClientCards()" 
+            class="bg-slate-900 text-xs text-slate-300 px-3 py-2 rounded-2xl border border-slate-700/80 focus:outline-none focus:border-emerald-500"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active Only</option>
+            <option value="EXPIRING_30">Expiring &lt; 30 Days</option>
+            <option value="EXPIRING_7">Expiring &lt; 7 Days</option>
+            <option value="EXPIRED">Expired</option>
+            <option value="LIFETIME">Lifetime</option>
+          </select>
+
+          <!-- Export / Import -->
+          <div class="flex items-center space-x-1.5">
+            <button onclick="exportClientsJSON()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs py-2 rounded-2xl border border-slate-700/80 flex items-center justify-center space-x-1">
+              <i class="fa-solid fa-download text-[10px]"></i>
+              <span>Export</span>
+            </button>
+            <label class="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs py-2 rounded-2xl border border-slate-700/80 flex items-center justify-center space-x-1 cursor-pointer">
+              <i class="fa-solid fa-upload text-[10px]"></i>
+              <span>Import</span>
+              <input type="file" accept=".json" class="hidden" onchange="importClientsJSON(event)">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Cards Container (Mobile-Optimized Cards) -->
+      <div id="clientCardsContainer" class="space-y-3">
+        <!-- Injected dynamically by JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="rosterEmptyState" class="hidden glass-card p-10 rounded-3xl text-center border border-slate-800">
+        <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center mx-auto mb-2.5 text-slate-500">
+          <i class="fa-solid fa-folder-open text-xl"></i>
+        </div>
+        <p class="text-xs font-bold text-slate-300 mb-1">No Client Licenses Found</p>
+        <p class="text-[11px] text-slate-500 mb-3">No records match your active search or filters.</p>
+        <button onclick="switchTab('generator')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl inline-flex items-center space-x-1.5">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>Create First Key</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: 🤖 NEXORA AI SUPPORT CHATBOT        -->
+    <!-- ========================================== -->
+    <section id="tab-ai" class="hidden space-y-3">
+      
+      <!-- AI Header Card -->
+      <div class="glass-card p-4 rounded-3xl border border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+            <i class="fa-solid fa-robot text-sm"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <h2 class="text-sm font-bold text-white">Nexora AI Support Bot</h2>
+              <span class="bg-purple-500/15 text-purple-300 text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-purple-500/20">TECHNICAL</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Windows setup, WiFi phone pairing, firewall & hardware troubleshooting</p>
+          </div>
+        </div>
+        <button onclick="clearAiChat()" class="text-slate-400 hover:text-white p-2 rounded-xl text-xs" title="Clear Chat">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+
+      <!-- Quick Topic Chips -->
+      <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar py-1 text-[10px]">
+        <button onclick="askAiPredefined('How to setup Nexora POS on Windows 10/11 master hub?')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl border border-slate-800 whitespace-nowrap">🖥️ Windows Setup</button>
+        <button onclick="askAiPredefined('How to connect Android phones and PDA scanners with Windows POS over WiFi?')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl border border-slate-800 whitespace-nowrap">📱 Android & PDA WiFi</button>
+        <button onclick="askAiPredefined('What firewall ports need to be opened for the LAN Hub? Give me the command.')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl border border-slate-800 whitespace-nowrap">🛡️ Port 8080 Firewall</button>
+        <button onclick="askAiPredefined('How to setup ESC/POS 80mm thermal receipt printer and barcode scale?')" class="bg-slate-900 hover:bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-xl border border-slate-800 whitespace-nowrap">🖨️ Printer & Scale</button>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div id="aiChatMessages" class="glass-card p-3.5 rounded-3xl border border-slate-800/80 h-[50vh] min-h-[320px] max-h-[550px] overflow-y-auto custom-scrollbar space-y-3">
+        <!-- Initial AI Greeting Message -->
+        <div class="flex items-start space-x-2.5">
+          <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/30 text-xs">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-slate-900/90 p-3 rounded-2xl rounded-tl-none border border-slate-800 max-w-lg text-[11px] space-y-1.5 text-slate-200 leading-relaxed">
+            <p class="font-bold text-purple-300">Welcome to Nexora ERP AI Support!</p>
+            <p>I am your technical assistant for setting up and troubleshooting your supermarket POS network:</p>
+            <ul class="list-disc list-inside space-y-0.5 text-slate-300">
+              <li>Windows Master Hub setup & auto-start</li>
+              <li>Connecting Android phones (PDA, PocketPOS, Rider, Executive AI) over WiFi</li>
+              <li>Opening Windows Firewall Port 8080</li>
+              <li>Thermal ESC/POS 80mm printers, cash drawers & barcode weight scales</li>
+            </ul>
+            <p class="text-slate-400 pt-0.5">Tap any quick topic above or type your question below!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <form id="aiChatForm" onsubmit="handleAiChatSubmit(event)" class="flex items-center space-x-2">
+        <div class="relative flex-1">
+          <input 
+            type="text" 
+            id="aiUserInput" 
+            placeholder="Ask anything about setup, Android phone pairing..." 
+            class="w-full bg-slate-900 text-xs text-white pl-3.5 pr-9 py-2.5 rounded-2xl border border-slate-700/80 focus:outline-none focus:border-purple-500 placeholder-slate-500"
+          >
+          <button 
+            type="submit" 
+            class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-500 text-white w-7 h-7 rounded-xl flex items-center justify-center transition-all shadow-md text-xs"
+          >
+            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+          </button>
+        </div>
+      </form>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: 🔍 KEY INSPECTOR & DECODER          -->
+    <!-- ========================================== -->
+    <section id="tab-inspector" class="hidden space-y-4">
+      
+      <div class="glass-card p-4 rounded-3xl space-y-3.5 border border-slate-800">
+        <div>
+          <h2 class="text-sm font-bold text-white">License Inspector & Decoder</h2>
+          <p class="text-[11px] text-slate-400">Paste any key to verify HMAC signature authenticity, expiry epoch & feature flags.</p>
+        </div>
+
+        <div class="space-y-2.5">
+          <div>
+            <label class="block text-[11px] text-slate-300 font-semibold mb-1">License Key</label>
+            <input 
+              type="text" 
+              id="inspectKeyInput" 
+              placeholder="NEXA-ENT-6CA5414B-FF-F6DD2303-6A1F6586" 
+              class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none focus:border-cyan-500 placeholder-slate-600"
+            >
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-300 font-semibold mb-1">Hardware ID (Optional)</label>
+            <input 
+              type="text" 
+              id="inspectDeviceIdInput" 
+              placeholder="NX-F6DD-2303-9058-9BD4" 
+              class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none focus:border-cyan-500 placeholder-slate-600"
+            >
+          </div>
+
+          <button 
+            type="button" 
+            onclick="performInspection()" 
+            class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-3 rounded-2xl flex items-center justify-center space-x-2 transition-all text-xs"
+          >
+            <i class="fa-solid fa-shield-check text-xs"></i>
+            <span>Decode & Verify Signature</span>
+          </button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="inspectResultBox" class="hidden bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 📱 BOTTOM TAB NAVIGATION (Mobile-First)    -->
+  <!-- ========================================== -->
+  <nav class="glass-panel fixed bottom-0 left-0 right-0 z-50 border-t border-slate-800/80 safe-bottom">
+    <div class="max-w-md mx-auto grid grid-cols-4 py-1.5 px-2">
+      
+      <!-- Tab: Generator -->
+      <button onclick="switchTab('generator')" id="btnTab-generator" class="nav-tab active flex flex-col items-center justify-center py-1 transition-all text-slate-400">
+        <div class="nav-icon-wrapper w-9 h-7 rounded-xl flex items-center justify-center border border-transparent transition-all mb-0.5">
+          <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+        </div>
+        <span class="text-[9px] font-bold tracking-tight">Studio</span>
+      </button>
+
+      <!-- Tab: Roster -->
+      <button onclick="switchTab('roster')" id="btnTab-roster" class="nav-tab flex flex-col items-center justify-center py-1 transition-all text-slate-400">
+        <div class="nav-icon-wrapper w-9 h-7 rounded-xl flex items-center justify-center border border-transparent transition-all mb-0.5">
+          <i class="fa-solid fa-table-list text-sm"></i>
+        </div>
+        <span class="text-[9px] font-bold tracking-tight">Roster</span>
+      </button>
+
+      <!-- Tab: AI Support -->
+      <button onclick="switchTab('ai')" id="btnTab-ai" class="nav-tab flex flex-col items-center justify-center py-1 transition-all text-slate-400">
+        <div class="nav-icon-wrapper w-9 h-7 rounded-xl flex items-center justify-center border border-transparent transition-all mb-0.5">
+          <i class="fa-solid fa-robot text-sm"></i>
+        </div>
+        <span class="text-[9px] font-bold tracking-tight">AI Bot</span>
+      </button>
+
+      <!-- Tab: Inspector -->
+      <button onclick="switchTab('inspector')" id="btnTab-inspector" class="nav-tab flex flex-col items-center justify-center py-1 transition-all text-slate-400">
+        <div class="nav-icon-wrapper w-9 h-7 rounded-xl flex items-center justify-center border border-transparent transition-all mb-0.5">
+          <i class="fa-solid fa-microscope text-sm"></i>
+        </div>
+        <span class="text-[9px] font-bold tracking-tight">Decoder</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ========================================== -->
+  <!-- 📱 MODAL: CONNECTED DEVICES MANAGER        -->
+  <!-- ========================================== -->
+  <div id="devicesModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3.5 overflow-y-auto">
+    <div class="w-full max-w-lg glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl relative my-auto">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-4">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white" id="deviceModalClientTitle">Paired Stations</h3>
+            <p class="text-[10px] text-slate-400" id="deviceModalQuotaInfo">Quota: 5 Stations</p>
+          </div>
+        </div>
+        <button onclick="closeDevicesModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <!-- Device List -->
+        <div class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar" id="deviceListContainer">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Add New Device Sub-form -->
+        <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 space-y-2.5">
+          <span class="text-[11px] font-bold text-white flex items-center space-x-1.5">
+            <i class="fa-solid fa-plus text-emerald-400"></i>
+            <span>Register Mobile Station / Scanner</span>
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input type="text" id="newDeviceRole" placeholder="Role (e.g. POS Lane 02 / PDA 1)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white">
+            <input type="text" id="newDeviceHwId" placeholder="Hardware / Model (e.g. Sunmi L2k)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white">
+          </div>
+          <button type="button" onclick="handleAddDeviceToClient()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">
+            Add Station
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[110] hidden bg-slate-900/95 border border-emerald-500/40 text-emerald-300 text-xs px-4 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 font-mono">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMessage">Copied to clipboard!</span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ⚙️ CORE JAVASCRIPT LOGIC                   -->
+  <!-- ========================================== -->
+  <script>
+    // --- MASTER CONFIGURATION & CONSTANTS ---
+    const MASTER_SALT = 'NEXORA_ERP_ENTERPRISE_HMAC_MASTER_2026_KEY_FTA';
+    const MASTER_ADMIN_PASS = '6969@Nkd';
+    const STORAGE_KEY = 'nexora_client_licenses_v3';
+    const AUTH_SESSION_KEY = 'nexora_admin_auth_token_v3';
+
+    let clients = [];
+    let currentSelectedClientId = null;
+
+    // --- TAB SWITCHER LOGIC ---
+    function switchTab(tabId) {
+      const tabs = ['generator', 'roster', 'ai', 'inspector'];
+      tabs.forEach(t => {
+        const sec = document.getElementById('tab-' + t);
+        const btn = document.getElementById('btnTab-' + t);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          btn.classList.add('active');
+        } else {
+          sec.classList.add('hidden');
+          btn.classList.remove('active');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- AUTHENTICATION GATEWAY ---
+    function checkAuth() {
+      const token = sessionStorage.getItem(AUTH_SESSION_KEY) || localStorage.getItem(AUTH_SESSION_KEY);
+      if (token === 'AUTH_OK_' + MASTER_ADMIN_PASS) {
+        document.getElementById('authLockOverlay').classList.add('hidden');
+      } else {
+        document.getElementById('authLockOverlay').classList.remove('hidden');
+      }
+    }
+
+    function handleAuthLogin(e) {
+      e.preventDefault();
+      const enteredPass = document.getElementById('authPasswordInput').value;
+      const errorBox = document.getElementById('authErrorMsg');
+
+      if (enteredPass === MASTER_ADMIN_PASS) {
+        sessionStorage.setItem(AUTH_SESSION_KEY, 'AUTH_OK_' + MASTER_ADMIN_PASS);
+        localStorage.setItem(AUTH_SESSION_KEY, 'AUTH_OK_' + MASTER_ADMIN_PASS);
+        document.getElementById('authLockOverlay').classList.add('hidden');
+        errorBox.classList.add('hidden');
+        showToast('Authenticated successfully!');
+      } else {
+        errorBox.classList.remove('hidden');
+        document.getElementById('authPasswordInput').value = '';
+        document.getElementById('authPasswordInput').focus();
+      }
+    }
+
+    function lockPortal() {
+      sessionStorage.removeItem(AUTH_SESSION_KEY);
+      localStorage.removeItem(AUTH_SESSION_KEY);
+      document.getElementById('authPasswordInput').value = '';
+      document.getElementById('authLockOverlay').classList.remove('hidden');
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadClientsFromStorage();
+      updateExpiryCalculation();
+      updateLiveBitmaskPreview();
+      renderClientCards();
+    });
+
+    // --- LOCAL STORAGE DATA PERSISTENCE ---
+    function loadClientsFromStorage() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          clients = JSON.parse(stored);
+        } catch (_) {
+          clients = [];
+        }
+      } else {
+        // Sample starter client
+        clients = [
+          {
+            id: 'CLI-1728000001',
+            orgName: 'Al Madina Grand Supermarket LLC',
+            branch: 'Deira Main Branch, Dubai',
+            trn: '100458921100003',
+            phone: '+971 50 889 1234',
+            deviceId: 'NX-F6DD-2303-9058-9BD4',
+            tier: 'ENT',
+            maxDevices: 999,
+            moduleBitmask: 0xFF,
+            notes: 'Master Hub + 2 PDA stock scanners',
+            licenseKey: 'NEXA-ENT-6CA5414B-FF-F6DD2303-6A1F6586',
+            issuedDate: new Date().toISOString(),
+            expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            status: 'ACTIVE',
+            devices: [
+              { role: 'Master POS Terminal', hwId: 'NX-F6DD-2303-9058-9BD4', model: 'Dell OptiPlex / Win 11' },
+              { role: 'PDA Stock Auditor 01', hwId: 'NX-SUNMI-L2K-01', model: 'Sunmi L2k Scanner' },
+              { role: 'Delivery Hub Rider 01', hwId: 'NX-RIDER-TAB-01', model: 'Samsung Tab A9' }
+            ]
+          }
+        ];
+        saveClientsToStorage();
+      }
+    }
+
+    function saveClientsToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+      renderClientCards();
+    }
+
+    // --- CRYPTOGRAPHIC HMAC-SHA256 (Web Crypto API) ---
+    async function computeHmacSha256(message, secret) {
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(secret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      const signature = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+      const hashArray = Array.from(new Uint8Array(signature));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    // --- KEY GENERATOR ALGORITHM (100% Matches LicensingService.dart) ---
+    async function generateSecureKey(deviceId, tier, durationDays, moduleBitmask = 0xFF) {
+      const cleanHwId = deviceId.trim().toUpperCase();
+      const devShort = cleanHwId.replace(/NX-/g, '').replace(/-/g, '').substring(0, 8);
+
+      let expiryEpochSec = null;
+      let expHex = 'FFFFFFFF'; // Lifetime
+
+      if (durationDays !== 'LIFETIME') {
+        const days = parseInt(durationDays, 10);
+        const expDate = new Date();
+        expDate.setDate(expDate.getDate() + days);
+        expiryEpochSec = Math.floor(expDate.getTime() / 1000);
+        expHex = expiryEpochSec.toString(16).toUpperCase().padStart(8, '0');
+      }
+
+      const modHex = moduleBitmask.toString(16).toUpperCase().padStart(2, '0');
+      const payloadForHmac = `${cleanHwId}##${tier}##${expHex}##${modHex}##${devShort}`;
+      const fullSig = await computeHmacSha256(payloadForHmac, MASTER_SALT);
+      const shortSig = fullSig.substring(0, 8);
+
+      const generatedKey = `NEXA-${tier}-${expHex}-${modHex}-${devShort}-${shortSig}`;
+
+      return {
+        key: generatedKey,
+        expiryDate: expiryEpochSec ? new Date(expiryEpochSec * 1000).toISOString() : null,
+        expHex: expHex,
+        modHex: modHex,
+        moduleBitmask: moduleBitmask
+      };
+    }
+
+    // --- VALIDITY PRESETS ---
+    function setValidityPreset(val) {
+      document.querySelectorAll('.validity-chip').forEach(c => {
+        c.classList.remove('active', 'bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300', 'font-bold');
+      });
+      event.target.classList.add('active', 'bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300', 'font-bold');
+
+      const customInput = document.getElementById('genCustomDays');
+      if (val === 'LIFETIME') {
+        customInput.value = '';
+        customInput.disabled = true;
+      } else {
+        customInput.disabled = false;
+        customInput.value = val;
+      }
+      updateExpiryCalculation();
+    }
+
+    function updateExpiryCalculation() {
+      const customDays = parseInt(document.getElementById('genCustomDays').value, 10);
+      const preview = document.getElementById('calculatedExpiryPreview');
+
+      if (document.getElementById('genCustomDays').disabled) {
+        preview.textContent = 'Perpetual (No Expiry)';
+        preview.className = 'text-[10px] text-purple-400 font-bold font-mono';
+        return;
+      }
+
+      if (!isNaN(customDays) && customDays > 0) {
+        const expDate = new Date();
+        expDate.setDate(expDate.getDate() + customDays);
+        const formatted = `${String(expDate.getDate()).padStart(2, '0')}/${String(expDate.getMonth() + 1).padStart(2, '0')}/${expDate.getFullYear()}`;
+        preview.textContent = `Expires: ${formatted} (${customDays}d)`;
+        preview.className = 'text-[10px] text-emerald-400 font-bold font-mono';
+      } else {
+        preview.textContent = 'Expires: --/--/----';
+        preview.className = 'text-[10px] text-slate-500 font-bold font-mono';
+      }
+    }
+
+    function handleTierChange() {
+      const tier = document.getElementById('genTier').value;
+      const maxDev = document.getElementById('genMaxDevices');
+      if (tier === 'STD') maxDev.value = 2;
+      else if (tier === 'PRO') maxDev.value = 5;
+      else if (tier === 'ENT') maxDev.value = 999;
+    }
+
+    function toggleAllFeatures(enableAll) {
+      document.getElementById('modPda').checked = enableAll;
+      document.getElementById('modDelivery').checked = enableAll;
+      document.getElementById('modAiBill').checked = enableAll;
+      document.getElementById('modExecutiveAi').checked = enableAll;
+      document.getElementById('modQueueBusting').checked = enableAll;
+      document.getElementById('modWhatsApp').checked = enableAll;
+      document.getElementById('modCloudSync').checked = enableAll;
+      updateLiveBitmaskPreview();
+    }
+
+    function updateLiveBitmaskPreview() {
+      let mask = 0x01; // Base POS
+      let count = 1;
+
+      if (document.getElementById('modPda').checked) { mask |= 0x02; count++; }
+      if (document.getElementById('modDelivery').checked) { mask |= 0x04; count++; }
+      if (document.getElementById('modAiBill').checked) { mask |= 0x08; count++; }
+      if (document.getElementById('modExecutiveAi').checked) { mask |= 0x10; count++; }
+      if (document.getElementById('modQueueBusting').checked) { mask |= 0x20; count++; }
+      if (document.getElementById('modWhatsApp').checked) { mask |= 0x40; count++; }
+      if (document.getElementById('modCloudSync').checked) { mask |= 0x80; count++; }
+
+      const hex = '0x' + mask.toString(16).toUpperCase().padStart(2, '0');
+      document.getElementById('bitmaskHexPreview').textContent = hex;
+      document.getElementById('featuresSelectedSummary').textContent = `${count}/8 Active`;
+      return mask;
+    }
+
+    // --- FORM SUBMIT: GENERATE KEY ---
+    async function handleGenerateKey(e) {
+      e.preventDefault();
+
+      const orgName = document.getElementById('genOrgName').value.trim();
+      const branch = document.getElementById('genBranch').value.trim();
+      const trn = document.getElementById('genTrn').value.trim();
+      const phone = document.getElementById('genPhone').value.trim();
+      const deviceId = document.getElementById('genDeviceId').value.trim().toUpperCase();
+      const tier = document.getElementById('genTier').value;
+      const maxDevices = parseInt(document.getElementById('genMaxDevices').value, 10) || 999;
+      
+      const customInput = document.getElementById('genCustomDays');
+      const duration = customInput.disabled ? 'LIFETIME' : (customInput.value || '365');
+
+      if (!deviceId.startsWith('NX-')) {
+        alert('Invalid Hardware ID format. Valid Nexora device codes must start with "NX-" (e.g. NX-XXXX-XXXX-XXXX-XXXX)');
+        return;
+      }
+
+      if (phone.replace(/\D/g, '').length < 7) {
+        alert('Mobile Phone Number is mandatory and must contain at least 7 digits.');
+        return;
+      }
+
+      const mask = updateLiveBitmaskPreview();
+      const result = await generateSecureKey(deviceId, tier, duration, mask);
+
+      const newClient = {
+        id: 'CLI-' + Date.now(),
+        orgName: orgName,
+        branch: branch || 'Main Branch',
+        trn: trn || 'N/A',
+        phone: phone,
+        deviceId: deviceId,
+        tier: tier,
+        maxDevices: maxDevices,
+        moduleBitmask: mask,
+        licenseKey: result.key,
+        issuedDate: new Date().toISOString(),
+        expiryDate: result.expiryDate,
+        status: 'ACTIVE',
+        devices: [
+          { role: 'Master Terminal (Primary)', hwId: deviceId, model: 'Windows Desktop Hub' }
+        ]
+      };
+
+      clients.unshift(newClient);
+      saveClientsToStorage();
+
+      document.getElementById('generatedKeyField').value = result.key;
+      document.getElementById('outputExpiryBadge').textContent = result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'LIFETIME';
+      document.getElementById('keyOutputBox').classList.remove('hidden');
+
+      showToast('Key generated successfully!');
+    }
+
+    function copyGeneratedKey() {
+      const key = document.getElementById('generatedKeyField').value;
+      navigator.clipboard.writeText(key).then(() => {
+        showToast('License Key copied to clipboard!');
+      });
+    }
+
+    function shareWhatsAppFromOutput() {
+      const key = document.getElementById('generatedKeyField').value;
+      const org = document.getElementById('genOrgName').value;
+      const hwId = document.getElementById('genDeviceId').value;
+      const phone = document.getElementById('genPhone').value;
+      const exp = document.getElementById('outputExpiryBadge').textContent;
+      
+      const text = `*NEXORA ENTERPRISE ERP - OFFICIAL LICENSE*\n\n` +
+        `🏪 *Store:* ${org}\n` +
+        `💻 *Hardware ID:* ${hwId}\n` +
+        `🔑 *License Key:* \`${key}\`\n` +
+        `📅 *Validity Expiry:* ${exp}\n\n` +
+        `*Steps to Activate:*\n` +
+        `1. Open NexoraPOS on Windows\n` +
+        `2. Go to Settings > License Activation\n` +
+        `3. Paste the License Key above and click Activate.`;
+
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+      const url = cleanPhone.length >= 7 
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    }
+
+    // --- RENDER CLIENT ROSTER CARDS (Mobile-First) ---
+    function renderClientCards() {
+      const container = document.getElementById('clientCardsContainer');
+      const emptyState = document.getElementById('rosterEmptyState');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      container.innerHTML = '';
+
+      let activeCount = 0;
+      let expiringCount = 0;
+      const now = new Date();
+
+      const filtered = clients.filter(c => {
+        let isExpired = false;
+        let daysLeft = Infinity;
+        if (c.expiryDate) {
+          const exp = new Date(c.expiryDate);
+          daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysLeft <= 0) isExpired = true;
+          else if (daysLeft <= 30) expiringCount++;
+        }
+
+        if (!isExpired && c.status === 'ACTIVE') activeCount++;
+
+        if (statusFilter === 'ACTIVE' && isExpired) return false;
+        if (statusFilter === 'EXPIRED' && !isExpired) return false;
+        if (statusFilter === 'EXPIRING_30' && (daysLeft > 30 || daysLeft <= 0)) return false;
+        if (statusFilter === 'EXPIRING_7' && (daysLeft > 7 || daysLeft <= 0)) return false;
+        if (statusFilter === 'LIFETIME' && c.expiryDate !== null) return false;
+
+        if (searchQuery) {
+          const match = (c.orgName + ' ' + c.branch + ' ' + c.trn + ' ' + c.phone + ' ' + c.deviceId + ' ' + c.licenseKey).toLowerCase();
+          if (!match.includes(searchQuery)) return false;
+        }
+
+        return true;
+      });
+
+      // Update Header Stats
+      document.getElementById('headerStatActive').textContent = activeCount;
+      document.getElementById('headerStatExpiring').textContent = expiringCount;
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach(c => {
+        let daysLeft = Infinity;
+        let isExpired = false;
+        let expiryFormatted = 'Lifetime Perpetual';
+
+        if (c.expiryDate) {
+          const exp = new Date(c.expiryDate);
+          daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          expiryFormatted = `${String(exp.getDate()).padStart(2, '0')}/${String(exp.getMonth() + 1).padStart(2, '0')}/${exp.getFullYear()}`;
+          if (daysLeft <= 0) isExpired = true;
+        }
+
+        // Feature Badges
+        const mask = c.moduleBitmask || 0xFF;
+        const pills = [];
+        if (mask & 0x20) pills.push('<span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[9px]">POS</span>');
+        if (mask & 0x02) pills.push('<span class="bg-blue-500/10 text-blue-300 border border-blue-500/20 px-1.5 py-0.5 rounded text-[9px]">PDA</span>');
+        if (mask & 0x04) pills.push('<span class="bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded text-[9px]">Rider</span>');
+        if (mask & 0x10) pills.push('<span class="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5 rounded text-[9px]">Exec AI</span>');
+        if (mask & 0x08) pills.push('<span class="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-1.5 py-0.5 rounded text-[9px]">AI Bill</span>');
+        if (mask & 0x40) pills.push('<span class="bg-green-500/10 text-green-300 border border-green-500/20 px-1.5 py-0.5 rounded text-[9px]">WhatsApp</span>');
+
+        const card = document.createElement('div');
+        card.className = 'glass-card p-4 rounded-3xl border border-slate-800/90 space-y-3';
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="font-extrabold text-white text-xs sm:text-sm">${c.orgName}</div>
+              <div class="text-[10px] text-slate-400 font-mono mt-0.5">${c.branch || 'Main Branch'} • ${c.phone}</div>
+            </div>
+            <div>
+              ${isExpired 
+                ? '<span class="bg-red-500/15 text-red-400 border border-red-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full font-mono">EXPIRED</span>'
+                : daysLeft <= 7 
+                ? `<span class="bg-red-500/15 text-red-400 border border-red-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full font-mono animate-pulse">${daysLeft}d LEFT</span>`
+                : daysLeft <= 30
+                ? `<span class="bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full font-mono">${daysLeft}d LEFT</span>`
+                : `<span class="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full font-mono">ACTIVE (${daysLeft === Infinity ? 'PERP' : daysLeft + 'd'})</span>`
+              }
+            </div>
+          </div>
+
+          <!-- Hardware & Key Display -->
+          <div class="bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 space-y-1.5 font-mono text-xs">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">HW ID: <strong class="text-white">${c.deviceId}</strong></span>
+              <button onclick="openDevicesModal('${c.id}')" class="text-indigo-400 hover:underline text-[10px]">
+                <i class="fa-solid fa-network-wired text-[9px]"></i> ${(c.devices && c.devices.length) || 1} Stations
+              </button>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-emerald-300 pt-1 border-t border-slate-800/80">
+              <span class="truncate max-w-[240px] sm:max-w-none select-all">${c.licenseKey}</span>
+              <button onclick="copyClientKey('${c.licenseKey}')" class="text-slate-400 hover:text-white ml-2">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Feature Badges -->
+          <div class="flex flex-wrap gap-1">
+            ${pills.join('')}
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/60 text-xs">
+            <span class="text-[10px] text-slate-500 font-mono">Expiry: ${expiryFormatted}</span>
+            <div class="flex items-center space-x-1.5">
+              <button onclick="shareClientWhatsApp('${c.id}')" class="bg-emerald-950/60 hover:bg-emerald-900 text-emerald-400 px-2.5 py-1.5 rounded-xl flex items-center space-x-1 text-[11px]">
+                <i class="fa-brands fa-whatsapp text-xs"></i>
+                <span>Share</span>
+              </button>
+              <button onclick="renewClientPrompt('${c.id}')" class="bg-teal-950/60 hover:bg-teal-900 text-teal-300 px-2.5 py-1.5 rounded-xl text-[11px]">
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+              <button onclick="deleteClient('${c.id}')" class="bg-red-950/40 hover:bg-red-900 text-red-400 px-2.5 py-1.5 rounded-xl text-[11px]">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function copyClientKey(key) {
+      navigator.clipboard.writeText(key).then(() => {
+        showToast('License Key copied!');
+      });
+    }
+
+    function shareClientWhatsApp(id) {
+      const c = clients.find(x => x.id === id);
+      if (!c) return;
+
+      const expFormatted = c.expiryDate ? new Date(c.expiryDate).toLocaleDateString() : 'LIFETIME';
+      const text = `*NEXORA ENTERPRISE ERP - LICENSE KEY*\n\n` +
+        `🏪 *Store:* ${c.orgName}\n` +
+        `📍 *Branch:* ${c.branch}\n` +
+        `💻 *Hardware ID:* ${c.deviceId}\n` +
+        `🔑 *License Key:* \`${c.licenseKey}\`\n` +
+        `📅 *Expiry Date:* ${expFormatted}\n\n` +
+        `*Steps to Activate:*\n` +
+        `1. Open Nexora POS on Windows\n` +
+        `2. Go to Settings > System Activation\n` +
+        `3. Enter the key above and click Activate.`;
+
+      const cleanPhone = (c.phone || '').replace(/[^0-9]/g, '');
+      const url = cleanPhone.length >= 7 
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    }
+
+    async function renewClientPrompt(id) {
+      const c = clients.find(x => x.id === id);
+      if (!c) return;
+
+      const daysStr = prompt(`Renew / Extend License for ${c.orgName}\nEnter days to add (e.g. 10, 30, 90, 360, 365) or type LIFETIME:`, '365');
+      if (!daysStr) return;
+
+      const mask = c.moduleBitmask || 0xFF;
+      const result = await generateSecureKey(c.deviceId, c.tier, daysStr.trim(), mask);
+
+      c.licenseKey = result.key;
+      c.expiryDate = result.expiryDate;
+      c.status = 'ACTIVE';
+
+      saveClientsToStorage();
+      showToast('License renewed successfully!');
+    }
+
+    function deleteClient(id) {
+      const c = clients.find(x => x.id === id);
+      if (!c) return;
+      if (confirm(`Revoke & delete license for "${c.orgName}"?`)) {
+        clients = clients.filter(x => x.id !== id);
+        saveClientsToStorage();
+        showToast('License revoked.');
+      }
+    }
+
+    // --- CONNECTED DEVICES MODAL ---
+    function openDevicesModal(id) {
+      currentSelectedClientId = id;
+      const c = clients.find(x => x.id === id);
+      if (!c) return;
+
+      if (!c.devices) {
+        c.devices = [{ role: 'Master Terminal', hwId: c.deviceId, model: 'Windows Primary Hub' }];
+      }
+
+      document.getElementById('deviceModalClientTitle').textContent = `${c.orgName}`;
+      document.getElementById('deviceModalQuotaInfo').textContent = `Quota: ${c.devices.length} / ${c.maxDevices || 999} Stations`;
+
+      renderDeviceList(c);
+      document.getElementById('devicesModal').classList.remove('hidden');
+    }
+
+    function renderDeviceList(c) {
+      const container = document.getElementById('deviceListContainer');
+      container.innerHTML = '';
+
+      c.devices.forEach((dev, idx) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs';
+        item.innerHTML = `
+          <div>
+            <div class="font-bold text-white">${dev.role}</div>
+            <div class="text-[10px] text-slate-400 font-mono">${dev.hwId} • ${dev.model}</div>
+          </div>
+          ${idx > 0 ? `<button onclick="removeDeviceFromClient(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-[10px] text-emerald-400 font-bold">Master</span>'}
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function handleAddDeviceToClient() {
+      if (!currentSelectedClientId) return;
+      const c = clients.find(x => x.id === currentSelectedClientId);
+      if (!c) return;
+
+      const role = document.getElementById('newDeviceRole').value.trim();
+      const hwId = document.getElementById('newDeviceHwId').value.trim();
+
+      if (!role || !hwId) {
+        alert('Please fill out both device role and hardware ID');
+        return;
+      }
+
+      c.devices.push({ role: role, hwId: hwId, model: 'Android / POS Terminal' });
+      saveClientsToStorage();
+      renderDeviceList(c);
+
+      document.getElementById('newDeviceRole').value = '';
+      document.getElementById('newDeviceHwId').value = '';
+    }
+
+    function removeDeviceFromClient(index) {
+      if (!currentSelectedClientId) return;
+      const c = clients.find(x => x.id === currentSelectedClientId);
+      if (!c) return;
+      c.devices.splice(index, 1);
+      saveClientsToStorage();
+      renderDeviceList(c);
+    }
+
+    function closeDevicesModal() {
+      document.getElementById('devicesModal').classList.add('hidden');
+      currentSelectedClientId = null;
+    }
+
+    // --- KEY INSPECTOR & DECODER ENGINE ---
+    async function performInspection() {
+      const key = document.getElementById('inspectKeyInput').value.trim().toUpperCase();
+      const deviceId = document.getElementById('inspectDeviceIdInput').value.trim().toUpperCase();
+      const resultBox = document.getElementById('inspectResultBox');
+
+      if (!key.startsWith('NEXA-')) {
+        alert('Invalid license key format. Must start with NEXA-');
+        return;
+      }
+
+      const parts = key.split('-');
+      if (parts.length < 4) {
+        alert('Key must contain at least 4 hyphen-separated blocks.');
+        return;
+      }
+
+      const tierCode = parts[1];
+      let expHex = '';
+      let modHex = 'FF';
+      let devShort = '';
+      let sig = '';
+
+      if (parts.length === 6) {
+        expHex = parts[2];
+        modHex = parts[3];
+        devShort = parts[4];
+        sig = parts[5];
+      } else if (parts.length === 5) {
+        expHex = parts[2];
+        devShort = parts[3];
+        sig = parts[4];
+      } else {
+        devShort = parts[2];
+        sig = parts[3];
+      }
+
+      let expiryDateText = 'Lifetime Perpetual';
+      let isExpired = false;
+
+      if (expHex && expHex !== 'FFFFFFFF' && expHex !== 'LIFETIME') {
+        try {
+          const epoch = parseInt(expHex, 16);
+          const expDate = new Date(epoch * 1000);
+          expiryDateText = expDate.toLocaleDateString();
+          if (new Date() > expDate) isExpired = true;
+        } catch (_) {
+          expiryDateText = 'Corrupt timestamp';
+        }
+      }
+
+      const mask = parseInt(modHex, 16) || 0xFF;
+      const featureList = [];
+      if (mask & 0x01) featureList.push('Base POS');
+      if (mask & 0x02) featureList.push('Android PDA');
+      if (mask & 0x04) featureList.push('Delivery App');
+      if (mask & 0x08) featureList.push('AI Bill OCR');
+      if (mask & 0x10) featureList.push('Executive AI');
+      if (mask & 0x20) featureList.push('PocketPOS');
+      if (mask & 0x40) featureList.push('WhatsApp');
+      if (mask & 0x80) featureList.push('Cloud Sync');
+
+      let sigVerificationMsg = '';
+      if (deviceId) {
+        const expectedShort = deviceId.replace(/NX-/g, '').replace(/-/g, '').substring(0, 8);
+        const payload = `${deviceId}##${tierCode}##${expHex}##${modHex}##${expectedShort}`;
+        const computedSig = (await computeHmacSha256(payload, MASTER_SALT)).substring(0, 8);
+        if (computedSig === sig) {
+          sigVerificationMsg = '<div class="text-emerald-400 font-bold text-[11px] flex items-center space-x-1"><i class="fa-solid fa-circle-check"></i><span>Signature 100% Valid & Bound to Hardware</span></div>';
+        } else {
+          sigVerificationMsg = '<div class="text-red-400 font-bold text-[11px] flex items-center space-x-1"><i class="fa-solid fa-triangle-exclamation"></i><span>Signature Mismatch! Locked to different hardware.</span></div>';
+        }
+      }
+
+      resultBox.innerHTML = `
+        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800 text-xs">
+          <span class="font-bold text-white">Tier: <strong class="text-emerald-400">${tierCode}</strong></span>
+          <span class="text-[10px] font-mono text-slate-300">Mask: 0x${modHex}</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300 font-mono">
+          <div>Shortcode: <span class="text-cyan-300">${devShort}</span></div>
+          <div>Expiry: <span class="${isExpired ? 'text-red-400' : 'text-slate-200'}">${expiryDateText}</span></div>
+        </div>
+        ${sigVerificationMsg}
+        <div>
+          <div class="text-[10px] text-slate-400 mb-1">Enabled Modules (${featureList.length}/8):</div>
+          <div class="flex flex-wrap gap-1">
+            ${featureList.map(f => `<span class="bg-slate-900 border border-slate-800 text-emerald-300 text-[9px] px-1.5 py-0.5 rounded font-bold">${f}</span>`).join('')}
+          </div>
+        </div>
+      `;
+
+      resultBox.classList.remove('hidden');
+    }
+
+    // --- DATA IMPORT & EXPORT ---
+    function exportClientsJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `nexora_licenses_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Backup JSON exported!');
+    }
+
+    function importClientsJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            clients = imported;
+            saveClientsToStorage();
+            showToast(`Imported ${imported.length} licenses!`);
+          } else {
+            alert('Invalid JSON structure.');
+          }
+        } catch (err) {
+          alert('Error parsing JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // --- 🤖 AI CHATBOT KNOWLEDGE BASE ---
+    const AI_KNOWLEDGE_BASE = [
+      {
+        triggers: ['windows setup', 'setup in windows', 'how to setup', 'install windows', 'master hub', 'start pos', 'setup'],
+        answer: `### 🖥️ Windows POS Setup (Master Hub)
+1. **Launch**: Double-click **\`start_nexora_pos.bat\`** on Windows.
+2. **Hardware ID**: Copy the \`NX-XXXX-XXXX-XXXX-XXXX\` hardware code shown on screen.
+3. **Generate Key**: Open this portal, set validity (e.g. 365 days) and modules, and activate.
+4. **Embedded Server**: Starts automatically on **Port 8080** to serve all Android mobile devices.`
+      },
+      {
+        triggers: ['android', 'connect phone', 'connect android', 'wifi', 'hotspot', 'pda', 'mobile app', 'pocketpos', 'rider', 'executive ai'],
+        answer: `### 📱 Connecting Android Phones & PDA Scanners
+1. Connect Windows PC and Android devices to the **same WiFi or Windows Mobile Hotspot**.
+2. Find Windows PC IP: Open PowerShell / CMD and run \`ipconfig\` (e.g. \`192.168.1.150\`).
+3. In the mobile app (PDA / PocketPOS / Rider / Executive AI), enter Server Address:
+   \`http://192.168.x.x:8080\`
+4. Tap **Connect & Sync** for instant offline LAN database synchronization.`
+      },
+      {
+        triggers: ['firewall', 'port 8080', 'port', 'firewall rule', 'blocked'],
+        answer: `### 🛡️ Windows Firewall Port 8080 Unblock
+Run this command in **PowerShell as Administrator**:
+\`\`\`powershell
+netsh advfirewall firewall add rule name="Nexora POS LAN Hub (Port 8080)" dir=in action=allow protocol=TCP localport=8080
+\`\`\`
+*Note: Make sure your Windows Network Profile is set to **Private Network**.*`
+      },
+      {
+        triggers: ['printer', 'thermal', 'esc pos', '80mm', 'cash drawer', 'weight scale', 'barcode'],
+        answer: `### 🖨️ Thermal Receipt Printer & Scales
+- **Printers**: Supports USB, LAN (Port 9100), and Bluetooth 80mm ESC/POS printers.
+- **Drawer Kick**: Auto-sends \`ESC p 0 25 250\` on sale completion.
+- **Weight Scale Barcode**: Format is \`20AAAAAWWWWWX\` (\`AAAAA\` Item Code, \`WWWWW\` Weight in Grams).`
+      }
+    ];
+
+    function handleAiChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('aiUserInput');
+      const question = input.value.trim();
+      if (!question) return;
+
+      appendChatMessage('user', question);
+      input.value = '';
+
+      setTimeout(() => {
+        const response = findBestAiAnswer(question);
+        appendChatMessage('bot', response);
+      }, 350);
+    }
+
+    function askAiPredefined(question) {
+      switchTab('ai');
+      appendChatMessage('user', question);
+      setTimeout(() => {
+        const response = findBestAiAnswer(question);
+        appendChatMessage('bot', response);
+      }, 350);
+    }
+
+    function findBestAiAnswer(userQuery) {
+      const query = userQuery.toLowerCase();
+      for (const item of AI_KNOWLEDGE_BASE) {
+        for (const trigger of item.triggers) {
+          if (query.includes(trigger)) {
+            return item.answer;
+          }
+        }
+      }
+
+      return `### 💡 Nexora Support Guide
+Regarding: *"**${userQuery}**"*
+
+1. **Master Terminal**: Run \`start_nexora_pos.bat\` on Windows.
+2. **Android Terminals**: Connect to the same WiFi and point to \`http://192.168.x.x:8080\`.
+3. **Firewall**: Ensure Port 8080 TCP Inbound is allowed.
+4. **License**: Verify that the required module bitmasks are checked in this studio.`;
+    }
+
+    function appendChatMessage(sender, text) {
+      const container = document.getElementById('aiChatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'flex items-start space-x-2.5';
+
+      if (sender === 'user') {
+        messageDiv.className = 'flex items-start justify-end space-x-2.5';
+        messageDiv.innerHTML = `
+          <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-2.5 rounded-2xl rounded-tr-none text-white text-[11px] max-w-xs shadow-md">
+            ${escapeHtml(text)}
+          </div>
+          <div class="w-7 h-7 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0 text-[10px] font-bold border border-purple-500/30">
+            ME
+          </div>
+        `;
+      } else {
+        let formattedText = text
+          .replace(/### (.*?)\n/g, '<h4 class="font-bold text-purple-300 text-xs mb-1">$1</h4>')
+          .replace(/```powershell\n([\s\S]*?)```/g, '<pre class="bg-slate-950 p-2 rounded-xl border border-slate-800 font-mono text-[10px] text-emerald-300 overflow-x-auto my-1">$1</pre>')
+          .replace(/```(.*?)\n([\s\S]*?)```/g, '<pre class="bg-slate-950 p-2 rounded-xl border border-slate-800 font-mono text-[10px] text-cyan-300 overflow-x-auto my-1">$2</pre>')
+          .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em class="text-slate-300">$1</em>')
+          .replace(/`([^`]+)`/g, '<code class="bg-slate-950 px-1 py-0.5 rounded text-emerald-300 font-mono text-[10px]">$1</code>');
+
+        messageDiv.innerHTML = `
+          <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/30 text-xs">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-slate-900/90 p-3 rounded-2xl rounded-tl-none border border-slate-800 max-w-sm text-[11px] space-y-1 text-slate-200 leading-relaxed">
+            ${formattedText}
+          </div>
+        `;
+      }
+
+      container.appendChild(messageDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearAiChat() {
+      const container = document.getElementById('aiChatMessages');
+      container.innerHTML = `
+        <div class="flex items-start space-x-2.5">
+          <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center shrink-0 border border-purple-500/30 text-xs">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-slate-900/90 p-2.5 rounded-2xl rounded-tl-none border border-slate-800 max-w-sm text-[11px] text-slate-300">
+            Chat cleared. How can I assist you with setup or pairing?
+          </div>
+        </div>
+      `;
+    }
+
+    // --- TOAST NOTIFICATIONS ---
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  </script>
+</body>
+</html>
