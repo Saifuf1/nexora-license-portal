@@ -7,18 +7,18 @@ echo ========================================================
 echo.
 cd /d "%~dp0"
 git remote remove origin 2>nul
-git remote add origin https://github.com/saifuf1/nexora-license-portal.git
+git remote add origin https://github.com/Saifuf1/nexora-license-portal.git
 git branch -M main
-git add .
-git commit -m "Update Nexora License Master & AI Portal" 2>nul
-echo Pushing to GitHub (main branch)...
-git push -u origin main
+git add index.html README.md launch_portal.bat push_to_github.bat
+git commit -m "Deploy Nexora ERP Mobile-First License Studio & AI Assistant" 2>nul
+echo.
+echo Pushing updated code to GitHub (main branch)...
+git push -u origin main --force
 echo.
 echo ========================================================
-echo  Next Steps:
-echo  1. In your GitHub repo: Go to Settings -> Pages
-echo  2. Select Source: Deploy from a branch -> main -> / (root) -> Save
-echo  3. Your site is live at:
-echo     https://saifuf1.github.io/nexora-license-portal/
+echo  Deployment complete!
+echo  Your site is live at:
+echo  https://saifuf1.github.io/nexora-license-portal/
+echo  Password: 6969@Nkd
 echo ========================================================
 pause
