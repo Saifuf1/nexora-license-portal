@@ -734,42 +734,97 @@
   <!-- ========================================== -->
   <!-- 📱 MODAL: CONNECTED DEVICES MANAGER        -->
   <!-- ========================================== -->
-  <div id="devicesModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3.5 overflow-y-auto">
-    <div class="w-full max-w-lg glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl relative my-auto">
+  <!-- ========================================== -->
+  <!-- 📱 MODAL: CLIENT DEVICES & LICENSE KEY HUB -->
+  <!-- ========================================== -->
+  <div id="devicesModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3.5 overflow-y-auto">
+    <div class="w-full max-w-xl glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl relative my-auto border border-slate-700/80">
       
-      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-4">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-mobile-screen-button"></i>
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between pb-3.5 border-b border-slate-800 mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-network-wired"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-white" id="deviceModalClientTitle">Paired Stations</h3>
-            <p class="text-[10px] text-slate-400" id="deviceModalQuotaInfo">Quota: 5 Stations</p>
+            <div class="flex items-center space-x-2">
+              <h3 class="text-sm font-extrabold text-white" id="deviceModalClientTitle">Store Profile</h3>
+              <span id="deviceModalTierBadge" class="bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[9px] font-extrabold px-1.5 py-0.5 rounded font-mono">PRO</span>
+            </div>
+            <p class="text-[11px] text-slate-400" id="deviceModalSubtitle">Multi-Device & License Key Management</p>
           </div>
         </div>
-        <button onclick="closeDevicesModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl text-sm">
+        <button onclick="closeDevicesModal()" class="text-slate-400 hover:text-white p-2 rounded-xl text-base transition-all">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div class="space-y-3.5 text-xs">
-        <!-- Device List -->
-        <div class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar" id="deviceListContainer">
-          <!-- Populated by JS -->
+      <!-- Quota Meter Card -->
+      <div class="glass-card p-3 rounded-2xl border border-slate-800 mb-4 space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-300 font-semibold flex items-center space-x-1.5">
+            <i class="fa-solid fa-server text-emerald-400 text-[11px]"></i>
+            <span>Active Terminal Quota</span>
+          </span>
+          <span class="font-mono font-bold text-emerald-400" id="deviceModalQuotaInfo">1 / 5 Devices Active</span>
+        </div>
+        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+          <div id="deviceModalQuotaBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- Enrolled Devices Roster -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Enrolled Devices & Issued Keys</span>
+            <span class="text-[10px] text-slate-500 font-mono" id="deviceCountLabel">1 device</span>
+          </div>
+          <div class="space-y-2.5 max-h-60 overflow-y-auto custom-scrollbar pr-1" id="deviceListContainer">
+            <!-- Populated by JS -->
+          </div>
         </div>
 
-        <!-- Add New Device Sub-form -->
-        <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 space-y-2.5">
-          <span class="text-[11px] font-bold text-white flex items-center space-x-1.5">
-            <i class="fa-solid fa-plus text-emerald-400"></i>
-            <span>Register Mobile Station / Scanner</span>
-          </span>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input type="text" id="newDeviceRole" placeholder="Role (e.g. POS Lane 02 / PDA 1)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white">
-            <input type="text" id="newDeviceHwId" placeholder="Hardware / Model (e.g. Sunmi L2k)" class="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white">
+        <!-- Add New Device & Generate Key Form -->
+        <div class="bg-slate-900/90 p-4 rounded-2xl border border-indigo-500/30 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-extrabold text-white flex items-center space-x-1.5">
+              <i class="fa-solid fa-plus-circle text-indigo-400"></i>
+              <span>Add New Device & Generate License Key</span>
+            </span>
+            <span class="text-[9px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">Instant HMAC Key</span>
           </div>
-          <button type="button" onclick="handleAddDeviceToClient()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">
-            Add Station
+
+          <div class="space-y-2">
+            <!-- Role Selection -->
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-1">Station Role / Purpose</label>
+              <select id="newDeviceRoleSelect" onchange="handleRolePresetChange(this.value)" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 mb-1.5">
+                <option value="POS Cashier Lane 02">POS Cashier Lane 02</option>
+                <option value="POS Cashier Lane 03">POS Cashier Lane 03</option>
+                <option value="POS Cashier Lane 04">POS Cashier Lane 04</option>
+                <option value="Customer Service / Returns Desk">Customer Service / Returns Desk</option>
+                <option value="PDA Stock Scanner / Auditor">PDA Stock Scanner / Auditor</option>
+                <option value="Mobile Delivery Rider POS">Mobile Delivery Rider POS</option>
+                <option value="Executive AI Dashboard">Executive AI Dashboard</option>
+                <option value="CUSTOM">Custom Role Name...</option>
+              </select>
+              <input type="text" id="newDeviceRole" placeholder="Custom role name..." class="hidden w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <!-- Hardware ID -->
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-1 flex items-center justify-between">
+                <span>Secondary Machine Hardware ID *</span>
+                <span class="text-[9px] text-emerald-400 font-mono">From Onboarding Wizard Step 1</span>
+              </label>
+              <input type="text" id="newDeviceHwId" placeholder="NX-XXXX-XXXX-XXXX-XXXX" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white font-mono uppercase focus:outline-none focus:border-indigo-500 placeholder-slate-600">
+            </div>
+          </div>
+
+          <button type="button" onclick="handleAddDeviceToClient()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1.5 shadow-lg shadow-indigo-600/20 transition-all">
+            <i class="fa-solid fa-key text-[11px]"></i>
+            <span>Generate Key & Add Station</span>
           </button>
         </div>
       </div>
@@ -1219,19 +1274,26 @@
             </div>
           </div>
 
-          <!-- Hardware & Key Display -->
-          <div class="bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 space-y-1.5 font-mono text-xs">
+          <!-- Hardware, Devices & Keys Summary -->
+          <div class="bg-slate-900/90 p-3 rounded-2xl border border-slate-800 space-y-2 font-mono text-xs">
             <div class="flex items-center justify-between text-[11px]">
-              <span class="text-slate-400">HW ID: <strong class="text-white">${c.deviceId}</strong></span>
-              <button onclick="openDevicesModal('${c.id}')" class="text-indigo-400 hover:underline text-[10px]">
-                <i class="fa-solid fa-network-wired text-[9px]"></i> ${(c.devices && c.devices.length) || 1} Stations
+              <span class="text-slate-400">Master HW: <strong class="text-white">${c.deviceId}</strong></span>
+              <button onclick="openDevicesModal('${c.id}')" class="bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full font-mono flex items-center space-x-1 transition-all">
+                <i class="fa-solid fa-network-wired text-[8px]"></i>
+                <span>${(c.devices && c.devices.length) || 1} / ${c.maxDevices || 999} Devices Active</span>
               </button>
             </div>
-            <div class="flex items-center justify-between text-[10px] text-emerald-300 pt-1 border-t border-slate-800/80">
-              <span class="truncate max-w-[240px] sm:max-w-none select-all">${c.licenseKey}</span>
-              <button onclick="copyClientKey('${c.licenseKey}')" class="text-slate-400 hover:text-white ml-2">
-                <i class="fa-solid fa-copy"></i>
-              </button>
+            <div class="flex items-center justify-between text-[10px] text-emerald-300 pt-1.5 border-t border-slate-800/80">
+              <span class="truncate max-w-[200px] sm:max-w-none select-all font-bold">${c.licenseKey}</span>
+              <div class="flex items-center space-x-1.5 ml-2 shrink-0">
+                <button onclick="copyClientKey('${c.licenseKey}')" class="text-slate-400 hover:text-white p-1" title="Copy Master Key">
+                  <i class="fa-solid fa-copy"></i>
+                </button>
+                <button onclick="openDevicesModal('${c.id}')" class="bg-indigo-600/90 hover:bg-indigo-500 text-white font-sans font-bold px-2.5 py-1 rounded-xl text-[10px] flex items-center space-x-1 shadow-sm transition-all" title="Manage All Station Keys">
+                  <i class="fa-solid fa-laptop-code text-[9px]"></i>
+                  <span>Manage Keys (${(c.devices && c.devices.length) || 1})</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1319,21 +1381,67 @@
       }
     }
 
-    // --- CONNECTED DEVICES MODAL ---
+    // --- CONNECTED DEVICES & MULTI-KEY MANAGER ---
     function openDevicesModal(id) {
       currentSelectedClientId = id;
       const c = clients.find(x => x.id === id);
       if (!c) return;
 
-      if (!c.devices) {
-        c.devices = [{ role: 'Master Terminal', hwId: c.deviceId, model: 'Windows Primary Hub' }];
+      if (!c.devices || c.devices.length === 0) {
+        c.devices = [{
+          role: 'Master Server Terminal (Primary)',
+          hwId: c.deviceId,
+          licenseKey: c.licenseKey,
+          model: 'Windows Primary Hub',
+          addedDate: c.issuedDate || new Date().toISOString()
+        }];
+      } else {
+        if (!c.devices[0].licenseKey) {
+          c.devices[0].licenseKey = c.licenseKey;
+        }
       }
 
-      document.getElementById('deviceModalClientTitle').textContent = `${c.orgName}`;
-      document.getElementById('deviceModalQuotaInfo').textContent = `Quota: ${c.devices.length} / ${c.maxDevices || 999} Stations`;
+      document.getElementById('deviceModalClientTitle').textContent = c.orgName;
+      document.getElementById('deviceModalSubtitle').textContent = `${c.branch || 'Main Branch'} • ${c.phone}`;
+      
+      const tierBadge = document.getElementById('deviceModalTierBadge');
+      tierBadge.textContent = c.tier || 'PRO';
 
+      updateDeviceModalQuota(c);
       renderDeviceList(c);
       document.getElementById('devicesModal').classList.remove('hidden');
+    }
+
+    function updateDeviceModalQuota(c) {
+      const currentCount = c.devices ? c.devices.length : 1;
+      const maxQuota = c.maxDevices || (c.tier === 'STD' ? 2 : (c.tier === 'PRO' ? 5 : 999));
+      
+      const quotaText = maxQuota >= 999 
+        ? `${currentCount} Active Devices (Unlimited Quota)` 
+        : `${currentCount} / ${maxQuota} Devices Active`;
+      
+      document.getElementById('deviceModalQuotaInfo').textContent = quotaText;
+      document.getElementById('deviceCountLabel').textContent = `${currentCount} device${currentCount === 1 ? '' : 's'}`;
+
+      const pct = maxQuota >= 999 ? 100 : Math.min(100, Math.round((currentCount / maxQuota) * 100));
+      const bar = document.getElementById('deviceModalQuotaBar');
+      bar.style.width = pct + '%';
+      if (pct >= 100 && maxQuota < 999) {
+        bar.className = 'bg-gradient-to-r from-amber-500 to-red-500 h-2 rounded-full transition-all duration-300';
+      } else {
+        bar.className = 'bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-300';
+      }
+    }
+
+    function handleRolePresetChange(val) {
+      const customInput = document.getElementById('newDeviceRole');
+      if (val === 'CUSTOM') {
+        customInput.classList.remove('hidden');
+        customInput.focus();
+      } else {
+        customInput.classList.add('hidden');
+        customInput.value = '';
+      }
     }
 
     function renderDeviceList(c) {
@@ -1341,47 +1449,167 @@
       container.innerHTML = '';
 
       c.devices.forEach((dev, idx) => {
+        const isMaster = idx === 0;
         const item = document.createElement('div');
-        item.className = 'flex items-center justify-between p-2.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs';
+        item.className = 'p-3 rounded-2xl bg-slate-950 border border-slate-800/90 text-xs space-y-2';
+
+        const roleIcon = isMaster ? 'fa-desktop text-emerald-400' : 'fa-cash-register text-indigo-400';
+        const keyDisplay = dev.licenseKey || c.licenseKey;
+
         item.innerHTML = `
-          <div>
-            <div class="font-bold text-white">${dev.role}</div>
-            <div class="text-[10px] text-slate-400 font-mono">${dev.hwId} • ${dev.model}</div>
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-xs">
+                <i class="fa-solid ${roleIcon}"></i>
+              </div>
+              <div>
+                <div class="font-extrabold text-white flex items-center space-x-1.5">
+                  <span>${dev.role}</span>
+                  ${isMaster ? '<span class="bg-emerald-500/15 text-emerald-300 text-[8px] font-bold px-1.5 py-0.5 rounded font-mono">PRIMARY</span>' : '<span class="bg-indigo-500/15 text-indigo-300 text-[8px] font-bold px-1.5 py-0.5 rounded font-mono">SECONDARY</span>'}
+                </div>
+                <div class="text-[10px] text-slate-400 font-mono">HW ID: <strong class="text-slate-200">${dev.hwId}</strong></div>
+              </div>
+            </div>
+            ${!isMaster ? `
+              <button onclick="removeDeviceFromClient(${idx})" class="text-slate-500 hover:text-red-400 p-1 transition-all" title="Revoke Device">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            ` : ''}
           </div>
-          ${idx > 0 ? `<button onclick="removeDeviceFromClient(${idx})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-[10px] text-emerald-400 font-bold">Master</span>'}
+
+          <!-- License Key Box -->
+          <div class="bg-slate-900/90 p-2 rounded-xl border border-slate-800 flex items-center justify-between font-mono text-[10px]">
+            <span class="text-emerald-400 truncate max-w-[260px] sm:max-w-[340px] select-all font-bold">${keyDisplay}</span>
+            <div class="flex items-center space-x-1 shrink-0 ml-2">
+              <button onclick="copySpecificKey('${keyDisplay}')" class="text-slate-400 hover:text-white p-1" title="Copy Key">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+              <button onclick="shareDeviceWhatsApp('${c.id}', ${idx})" class="text-emerald-400 hover:text-emerald-300 p-1" title="Share via WhatsApp">
+                <i class="fa-brands fa-whatsapp text-xs"></i>
+              </button>
+            </div>
+          </div>
         `;
         container.appendChild(item);
       });
     }
 
-    function handleAddDeviceToClient() {
+    async function handleAddDeviceToClient() {
       if (!currentSelectedClientId) return;
       const c = clients.find(x => x.id === currentSelectedClientId);
       if (!c) return;
 
-      const role = document.getElementById('newDeviceRole').value.trim();
-      const hwId = document.getElementById('newDeviceHwId').value.trim();
+      const roleSelect = document.getElementById('newDeviceRoleSelect').value;
+      const roleCustom = document.getElementById('newDeviceRole').value.trim();
+      const role = (roleSelect === 'CUSTOM' ? roleCustom : roleSelect) || 'POS Cashier Lane';
+      const hwId = document.getElementById('newDeviceHwId').value.trim().toUpperCase();
 
-      if (!role || !hwId) {
-        alert('Please fill out both device role and hardware ID');
+      if (!hwId) {
+        alert('Please enter the secondary machine Hardware ID (e.g. NX-XXXX-XXXX-XXXX-XXXX).');
+        return;
+      }
+      if (!hwId.startsWith('NX-')) {
+        alert('Invalid Hardware ID format. Valid Nexora device codes must start with "NX-" (e.g. NX-XXXX-XXXX-XXXX-XXXX).');
         return;
       }
 
-      c.devices.push({ role: role, hwId: hwId, model: 'Android / POS Terminal' });
-      saveClientsToStorage();
-      renderDeviceList(c);
+      // Check for duplicate hardware ID under this client
+      if (c.devices && c.devices.some(d => d.hwId === hwId)) {
+        alert('This Hardware ID is already registered under this client profile.');
+        return;
+      }
 
-      document.getElementById('newDeviceRole').value = '';
+      // Quota check
+      const maxQuota = c.maxDevices || (c.tier === 'STD' ? 2 : (c.tier === 'PRO' ? 5 : 999));
+      if (c.devices && c.devices.length >= maxQuota) {
+        alert(`Quota Exceeded! The ${c.tier} plan for ${c.orgName} allows a maximum of ${maxQuota} devices.\n\nPlease upgrade this client's license tier to Enterprise to enroll additional lanes.`);
+        return;
+      }
+
+      // Calculate remaining days from client expiry
+      let duration = 'LIFETIME';
+      if (c.expiryDate) {
+        const exp = new Date(c.expiryDate);
+        const now = new Date();
+        const daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        duration = daysLeft > 0 ? daysLeft.toString() : '365';
+      }
+
+      const mask = c.moduleBitmask || 0xFF;
+      const result = await generateSecureKey(hwId, c.tier, duration, mask);
+
+      if (!c.devices) {
+        c.devices = [{
+          role: 'Master Server Terminal (Primary)',
+          hwId: c.deviceId,
+          licenseKey: c.licenseKey,
+          model: 'Windows Primary Hub',
+          addedDate: c.issuedDate || new Date().toISOString()
+        }];
+      }
+
+      c.devices.push({
+        role: role,
+        hwId: hwId,
+        licenseKey: result.key,
+        model: 'Secondary POS Terminal',
+        addedDate: new Date().toISOString()
+      });
+
+      saveClientsToStorage();
+      updateDeviceModalQuota(c);
+      renderDeviceList(c);
+      renderClientCards();
+
       document.getElementById('newDeviceHwId').value = '';
+      showToast(`Key generated for "${role}"!`);
     }
 
     function removeDeviceFromClient(index) {
       if (!currentSelectedClientId) return;
       const c = clients.find(x => x.id === currentSelectedClientId);
-      if (!c) return;
-      c.devices.splice(index, 1);
-      saveClientsToStorage();
-      renderDeviceList(c);
+      if (!c || !c.devices) return;
+
+      const dev = c.devices[index];
+      if (confirm(`Revoke and remove "${dev.role}" (${dev.hwId}) from ${c.orgName}?`)) {
+        c.devices.splice(index, 1);
+        saveClientsToStorage();
+        updateDeviceModalQuota(c);
+        renderDeviceList(c);
+        renderClientCards();
+        showToast('Station revoked.');
+      }
+    }
+
+    function copySpecificKey(key) {
+      navigator.clipboard.writeText(key).then(() => {
+        showToast('License Key copied to clipboard!');
+      });
+    }
+
+    function shareDeviceWhatsApp(clientId, deviceIdx) {
+      const c = clients.find(x => x.id === clientId);
+      if (!c || !c.devices || !c.devices[deviceIdx]) return;
+
+      const dev = c.devices[deviceIdx];
+      const expFormatted = c.expiryDate ? new Date(c.expiryDate).toLocaleDateString() : 'LIFETIME';
+
+      const text = `*NEXORA ERP - TERMINAL ACTIVATION KEY*\n\n` +
+        `🏪 *Store:* ${c.orgName} (${c.branch || 'Main'})\n` +
+        `💻 *Station Role:* ${dev.role}\n` +
+        `🖥️ *Hardware ID:* ${dev.hwId}\n` +
+        `🔑 *License Key:* \`${dev.licenseKey}\`\n` +
+        `📅 *Validity Expiry:* ${expFormatted}\n\n` +
+        `*Steps to Activate on Secondary PC:*\n` +
+        `1. Open NexoraPOS on the Secondary PC\n` +
+        `2. In Step 1 of Onboarding, paste the License Key above\n` +
+        `3. In Step 3, choose role: "${dev.role}" and launch!`;
+
+      const cleanPhone = (c.phone || '').replace(/[^0-9]/g, '');
+      const url = cleanPhone.length >= 7 
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
     }
 
     function closeDevicesModal() {
