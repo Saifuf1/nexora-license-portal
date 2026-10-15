@@ -205,6 +205,14 @@
           </span>
         </div>
 
+        <!-- Cloud Sync Badge (clickable) -->
+        <span
+          id="cloudSyncBadge"
+          onclick="openCloudSyncSetup()"
+          title="Click to configure cloud sync"
+          class="text-[10px] font-bold px-2.5 py-1 rounded-full border cursor-pointer transition-all bg-amber-500/15 text-amber-400 border-amber-500/30"
+        >🔗 Connect Cloud</span>
+
         <!-- Lock Button -->
         <button 
           onclick="lockPortal()" 
@@ -832,7 +840,94 @@
     </div>
   </div>
 
-  <!-- Toast Notification System -->
+  <!-- ========================================== -->
+  <!-- ☁️ MODAL: CLOUD SYNC SETUP                 -->
+  <!-- ========================================== -->
+  <div id="cloudSyncModal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3.5 overflow-y-auto">
+    <div class="w-full max-w-md glass-panel rounded-3xl p-5 sm:p-6 shadow-2xl relative my-auto">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-4">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-base border border-emerald-500/20">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Cloud Sync Setup</h3>
+            <p class="text-[10px] text-slate-400">Sync license data across all your devices instantly</p>
+          </div>
+        </div>
+        <button onclick="closeCloudSyncModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- How it works explanation -->
+      <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800 mb-4 text-[11px] text-slate-300 space-y-1.5">
+        <p class="font-bold text-emerald-400">☁️ How Cloud Sync Works:</p>
+        <p>Your license data will be saved to a <strong>private GitHub Gist</strong> — encrypted, hidden from public, and accessible from any device when you enter your token.</p>
+        <p class="text-slate-400">📱 Mobile → generates key → saves to cloud → 💻 PC opens site → pulls same data automatically.</p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <!-- GitHub Token Input -->
+        <div>
+          <label class="block text-[11px] text-slate-300 font-bold mb-1 flex items-center justify-between">
+            <span>GitHub Personal Access Token *</span>
+            <a href="https://github.com/settings/tokens/new?scopes=gist&description=nexora-sync" target="_blank" class="text-emerald-400 hover:underline text-[10px]">
+              <i class="fa-solid fa-external-link text-[9px]"></i> Generate Token
+            </a>
+          </label>
+          <input 
+            type="password" 
+            id="gistTokenInput" 
+            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" 
+            class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder-slate-600"
+          >
+          <p class="text-[10px] text-slate-500 mt-1">Click "Generate Token" above → check <strong>gist</strong> scope → copy and paste here.</p>
+        </div>
+
+        <!-- Optional: Existing Gist ID for manual linking across devices -->
+        <div>
+          <label class="block text-[11px] text-slate-300 font-bold mb-1 flex items-center justify-between">
+            <span>Existing Gist ID <span class="text-slate-500 font-normal">(optional — to link this device to an existing roster)</span></span>
+          </label>
+          <input 
+            type="text" 
+            id="gistIdInput" 
+            placeholder="Leave blank to auto-create a new cloud roster" 
+            class="w-full bg-slate-900 border border-slate-700/80 rounded-2xl px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500 placeholder-slate-600"
+          >
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button 
+            id="btnSaveCloudSync"
+            type="button" 
+            onclick="handleCloudSyncSave()" 
+            class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-2.5 rounded-2xl text-xs transition-all flex items-center justify-center space-x-1.5"
+          >
+            <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+            <span>Connect &amp; Sync</span>
+          </button>
+          <button 
+            type="button" 
+            onclick="closeCloudSyncModal()" 
+            class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-2xl text-xs"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <!-- Disconnect option if already connected -->
+        <div id="syncDisconnectRow" class="hidden pt-1 border-t border-slate-800 text-center">
+          <button onclick="disconnectCloudSync()" class="text-red-400 hover:underline text-[10px]">
+            Disconnect &amp; Use Local Storage Only
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[110] hidden bg-slate-900/95 border border-emerald-500/40 text-emerald-300 text-xs px-4 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 font-mono">
     <i class="fa-solid fa-circle-check text-emerald-400"></i>
     <span id="toastMessage">Copied to clipboard!</span>
@@ -924,6 +1019,21 @@
       updateExpiryCalculation();
       updateLiveBitmaskPreview();
       renderClientCards();
+      // Cloud sync: wire up badge & auto-pull on startup
+      const _t = getGistToken();
+      const _g = getGistId();
+      if (_t && _g) {
+        cloudPull();
+      } else if (_t) {
+        updateSyncBadge('offline');
+      } else {
+        updateSyncBadge('setup');
+      }
+      // Show disconnect row in modal if already connected
+      if (_t) {
+        const row = document.getElementById('syncDisconnectRow');
+        if (row) row.classList.remove('hidden');
+      }
     });
 
     // --- LOCAL STORAGE DATA PERSISTENCE ---
@@ -964,9 +1074,151 @@
       }
     }
 
+    // =============================================================
+    // ☁️ GITHUB GIST CLOUD SYNC ENGINE
+    // =============================================================
+    const GIST_TOKEN_KEY = 'nexora_gist_token';
+    const GIST_ID_KEY    = 'nexora_gist_id';
+    const GIST_FILENAME  = 'nexora_licenses.json';
+    let   isSyncing      = false;
+
+    function getGistToken() { return localStorage.getItem(GIST_TOKEN_KEY) || ''; }
+    function getGistId()    { return localStorage.getItem(GIST_ID_KEY)    || ''; }
+
+    function updateSyncBadge(state) {
+      const badge = document.getElementById('cloudSyncBadge');
+      if (!badge) return;
+      const map = {
+        synced:  { text: '☁️ Cloud Synced',    cls: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+        syncing: { text: '⟳ Syncing...',       cls: 'bg-teal-500/15    text-teal-400    border-teal-500/30'    },
+        offline: { text: '💾 Local Only',       cls: 'bg-slate-700/50   text-slate-400   border-slate-700'      },
+        error:   { text: '⚠️ Sync Error',       cls: 'bg-red-500/15    text-red-400     border-red-500/30'      },
+        setup:   { text: '🔗 Connect Cloud',    cls: 'bg-amber-500/15  text-amber-400   border-amber-500/30'    },
+      };
+      const s = map[state] || map.offline;
+      badge.textContent = s.text;
+      badge.className   = `text-[10px] font-bold px-2.5 py-1 rounded-full border cursor-pointer transition-all ${s.cls}`;
+    }
+
+    async function cloudPush() {
+      const token = getGistToken();
+      const gistId = getGistId();
+      if (!token) { updateSyncBadge('setup'); return; }
+      isSyncing = true;
+      updateSyncBadge('syncing');
+      const body = {
+        description: 'Nexora ERP License Roster (Auto-Managed)',
+        public: false,
+        files: { [GIST_FILENAME]: { content: JSON.stringify(clients, null, 2) } }
+      };
+      try {
+        let resp;
+        if (gistId) {
+          resp = await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+        } else {
+          resp = await fetch('https://api.github.com/gists', {
+            method: 'POST',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+        }
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.id) localStorage.setItem(GIST_ID_KEY, data.id);
+          updateSyncBadge('synced');
+        } else { throw new Error('HTTP ' + resp.status); }
+      } catch (err) { updateSyncBadge('error'); }
+      isSyncing = false;
+    }
+
+    async function cloudPull() {
+      const token  = getGistToken();
+      const gistId = getGistId();
+      if (!token || !gistId) { updateSyncBadge('setup'); return false; }
+      updateSyncBadge('syncing');
+      try {
+        const resp = await fetch(`https://api.github.com/gists/${gistId}`, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+        const fileContent = data.files?.[GIST_FILENAME]?.content;
+        if (fileContent) {
+          const parsed = JSON.parse(fileContent);
+          if (Array.isArray(parsed)) {
+            clients = parsed;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+            renderClientCards();
+            updateSyncBadge('synced');
+            return true;
+          }
+        }
+      } catch (err) { updateSyncBadge('error'); }
+      return false;
+    }
+
     function saveClientsToStorage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
       renderClientCards();
+      if (getGistToken()) cloudPush();
+    }
+
+    function openCloudSyncSetup() {
+      document.getElementById('cloudSyncModal').classList.remove('hidden');
+      const ex = getGistToken();
+      if (ex) document.getElementById('gistTokenInput').value = ex;
+      const exId = getGistId();
+      if (exId) document.getElementById('gistIdInput').value = exId;
+    }
+
+    function closeCloudSyncModal() {
+      document.getElementById('cloudSyncModal').classList.add('hidden');
+    }
+
+    async function handleCloudSyncSave() {
+      const token = document.getElementById('gistTokenInput').value.trim();
+      const manualGistId = document.getElementById('gistIdInput').value.trim();
+      if (!token || token.length < 10) {
+        alert('Please enter a valid GitHub Personal Access Token (starts with ghp_...)');
+        return;
+      }
+      const btn = document.getElementById('btnSaveCloudSync');
+      btn.textContent = 'Connecting...';
+      btn.disabled = true;
+      try {
+        const resp = await fetch('https://api.github.com/user', {
+          headers: { 'Authorization': `token ${token}` }
+        });
+        if (!resp.ok) throw new Error('Invalid token — check scopes include gist.');
+        const user = await resp.json();
+        localStorage.setItem(GIST_TOKEN_KEY, token);
+        if (manualGistId) {
+          localStorage.setItem(GIST_ID_KEY, manualGistId);
+        } else {
+          localStorage.removeItem(GIST_ID_KEY);
+        }
+        closeCloudSyncModal();
+        showToast('✅ Cloud Sync connected as @' + user.login + '! Syncing now...');
+        const pulled = await cloudPull();
+        if (!pulled) await cloudPush();
+      } catch (err) {
+        alert('❌ ' + err.message);
+      }
+      btn.textContent = 'Connect & Sync';
+      btn.disabled = false;
+    }
+
+    function disconnectCloudSync() {
+      if (!confirm('Disconnect cloud sync? Your data will remain locally but won\'t sync to other devices.')) return;
+      localStorage.removeItem(GIST_TOKEN_KEY);
+      localStorage.removeItem(GIST_ID_KEY);
+      updateSyncBadge('offline');
+      closeCloudSyncModal();
+      showToast('Cloud sync disconnected.');
     }
 
     // --- CRYPTOGRAPHIC HMAC-SHA256 (Web Crypto API) ---
